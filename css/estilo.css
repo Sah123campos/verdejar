@@ -182,10 +182,10 @@ canvas.px, .palco canvas, .miniatura canvas { image-rendering: pixelated; image-
   touch-action: none;
   cursor: grab;
 }
-.palco canvas { position: absolute; left: 50%; bottom: 4%; height: 100%; aspect-ratio: 1; transform: translateX(-50%); }
-.palco canvas.pulo { animation: pulo 0.28s ease-out; }
+.palco > canvas { position: absolute; left: 50%; bottom: 4%; height: 100%; aspect-ratio: 1; transform: translateX(-50%); }
+.palco > canvas.pulo { animation: pulo 0.28s ease-out; }
 @keyframes pulo { 40% { transform: translateX(-50%) translateY(-5%) scale(1.03); } }
-.btn-girar { position: absolute; top: 50%; translate: 0 -50%; width: var(--toque); height: var(--toque); border-radius: 50%; display: grid; place-items: center; background: rgba(247, 240, 218, 0.92); border: 3px solid var(--borda); }
+.btn-girar { position: absolute; top: 55%; translate: 0 -50%; width: var(--toque); height: var(--toque); border-radius: 50%; display: grid; place-items: center; background: rgba(247, 240, 218, 0.92); border: 3px solid var(--borda); }
 .btn-girar.esq { left: 8px; }
 .btn-girar.dir { right: 8px; }
 .btn-girar:active { scale: 0.92; }
@@ -408,3 +408,13 @@ kbd { display: inline-block; padding: 0 5px; margin-right: 4px; border-radius: 4
 .modo-ampliado .hud-linha2 .inventario, .modo-ampliado .dicas-teclado { display: none; }
 .modo-ampliado .chip-missao { font-size: 13px; padding: 4px 8px; }
 html:not(.modo-toque) .btn-acao.inativo { opacity: 0; pointer-events: none; }
+
+/* Escolha rápida de corpo por imagem (canto da prévia) */
+.bases-palco { position: absolute; left: 8px; top: 8px; display: flex; gap: 6px; }
+.btn-base { width: 52px; height: 52px; padding: 2px; border-radius: 12px; background: rgba(247, 240, 218, 0.92); border: 3px solid var(--borda); display: grid; place-items: center; }
+.btn-base canvas { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.btn-base[aria-pressed="true"] { background: #e5f6d6; border-color: var(--verde-esc); box-shadow: 0 0 0 3px var(--verde-claro); }
+.btn-base:active { transform: scale(0.94); }
+.grade.bases { grid-template-columns: repeat(2, 1fr); max-width: 280px; }
+.grade.bases .opcao canvas { max-width: 110px; }
+:root[data-tamanho="g"] .btn-base { width: 60px; height: 60px; }

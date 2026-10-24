@@ -273,6 +273,18 @@ export const VISUAIS = [
     calcado: "botas", corCalcado: "#7a5236", cabeca: "chapeuPalha", corCabeca: "#4d6b3a", rostoAc: "nenhum", pescoco: "nenhum", costas: "ecobag", corCostas: "#e8dcc0" } },
 ];
 
+// Duas bases de corpo mostradas só por imagem no editor (sem rótulos escritos).
+// Mudam corpo, rosto, olhos e cabelo; roupas e cores continuam as do jogador.
+export const BASES_CORPO = [
+  { id: "a", v: { corpo: "largo", rosto: "quadrado", olhos: "pontos", cabelo: "curto" } },
+  { id: "b", v: { corpo: "curvas", rosto: "oval", olhos: "cilios", cabelo: "longo" }, semPelos: true },
+];
+export function aplicarBase(ap, base) {
+  const r = { ...ap, ...base.v };
+  if (base.semPelos) r.detalhes = (ap.detalhes || []).filter((d) => d !== "barba" && d !== "bigode");
+  return r;
+}
+
 export const APARENCIA_INICIAL = Object.freeze({
   nome: "",
   pele: PELES[3],
@@ -862,6 +874,7 @@ function desenharBaixoFrente(pm, ap, P, pz, pernas, costas) {
   const t = tecidoBaixo(ap);
   const pele = M();
   for (const p of [pernas.esq, pernas.dir]) for (const [x, y] of p.pontos()) pele.add(x, y);
+  if (ap.corpo === "curvas") pele.add(7, 23).add(16, 23).add(7, 24).add(16, 24); // quadril
   if (cima.cobrePernas) {
     const m = M();
     for (const [x, y] of pele.pontos()) m.add(x, y);
@@ -1469,7 +1482,8 @@ function desenharFrenteOuCostas(ap, quadro, costas) {
   desenharBracosFrente(pm, ap, P, pz, costas);
   // 4. pescoço e cabeça
   const pesc = M();
-  pesc.rect(10, 14 + u, 4, 1);
+  if (ap.corpo === "largo") pesc.rect(9, 14 + u, 6, 1);
+  else pesc.rect(10, 14 + u, 4, 1);
   for (const [x, y] of pesc.pontos()) pm.set(x, y, P.peleS);
   pintarPele(pm, cabU, P);
   // orelhas

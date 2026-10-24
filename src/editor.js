@@ -26,6 +26,7 @@ const RECORTE = {
   pernas: [3, 18, 18, 14],
   pes: [4, 22, 16, 10],
   pescoco: [5, 9, 14, 13],
+  busto: [2, 0, 20, 24],
 };
 
 const GIRO = ["baixo", "dir", "cima", "esq"];
@@ -45,6 +46,8 @@ export class Editor {
     this.canvas = $("ed-canvas");
     this.painel = $("ed-painel");
     this.montarAbas();
+    this.botoesBase = [...document.querySelectorAll(".btn-base")];
+    this.botoesBase.forEach((b, i) => b.addEventListener("click", () => this.escolherBase(P.BASES_CORPO[i])));
 
     $("ed-girar-esq").addEventListener("click", () => this.girar(-1));
     $("ed-girar-dir").addEventListener("click", () => this.girar(1));
@@ -152,6 +155,41 @@ export class Editor {
     if (this.folha) this.atualizarPrevia(false);
   }
 
+  escolherBase(base) {
+    this.mudar(P.aplicarBase(this.ap, base));
+  }
+
+  baseAtual() {
+    return P.BASES_CORPO.findIndex((b) => b.v.corpo === this.ap.corpo);
+  }
+
+  // Botões com figuras de corpo no canto da prévia, desenhados com a pele do jogador.
+  atualizarBotoesBase() {
+    const atual = this.baseAtual();
+    this.botoesBase.forEach((b, i) => {
+      const base = P.BASES_CORPO[i];
+      const ap2 = P.normalizar({ ...P.aplicarBase(this.ap, base), cabeca: "nenhum", rostoAc: "nenhum", costas: "nenhum", pescoco: "nenhum" });
+      b.replaceChildren(this.miniatura(ap2, "busto"));
+      b.setAttribute("aria-pressed", String(i === atual));
+    });
+  }
+
+  secaoBases() {
+    const s = this.secao("Corpo");
+    const g = document.createElement("div");
+    g.className = "grade bases";
+    const atual = this.baseAtual();
+    P.BASES_CORPO.forEach((base, i) => {
+      const ap2 = P.normalizar(P.aplicarBase(this.ap, base));
+      const b = this.botaoOpcao("", i === atual, () => this.escolherBase(base), this.miniatura(ap2, "corpo"));
+      b.setAttribute("aria-label", `Corpo ${i + 1}`);
+      b.querySelector("span:last-child")?.remove();
+      g.append(b);
+    });
+    s.append(g);
+    return s;
+  }
+
   // ---------------------------------------------------------- Painel de opções
   montarPainel() {
     const rolagem = this.painel.scrollTop;
@@ -160,7 +198,8 @@ export class Editor {
     const ap = this.ap;
     switch (this.aba) {
       case "visuais":
-        p.append(this.nota("Escolha um visual para começar. Depois, mude corpo, cabelo, roupas e cores como quiser."));
+        p.append(this.secaoBases());
+        p.append(this.nota("Ou escolha um visual pronto. Depois, mude corpo, cabelo, roupas e cores como quiser."));
         p.append(this.secaoVisuais());
         break;
       case "estilos":
@@ -168,6 +207,7 @@ export class Editor {
         p.append(this.secaoEstilos());
         break;
       case "corpo":
+        p.append(this.secaoBases());
         p.append(this.secaoCores("Tom de pele", P.PELES, "pele"));
         p.append(this.secaoMini("Formato do corpo", P.CORPOS, "corpo", "corpo"));
         p.append(this.secaoMini("Formato do rosto", P.ROSTOS, "rosto", "rosto"));
@@ -454,6 +494,7 @@ export class Editor {
 
   atualizarPrevia(pulo) {
     this.folha = folhaDeSprites(this.ap);
+    this.atualizarBotoesBase();
     const m = P.acharMaterial(this.ap.materialCima);
     const selo = $("ed-material");
     selo.hidden = this.aba !== "roupas";
