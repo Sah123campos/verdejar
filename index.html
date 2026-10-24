@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#12261f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Verdejar">
+  <meta name="description" content="Crie seu personagem e devolva a cor à Vila Verdejar: recicle, plante, economize água e energia.">
+  <title>Verdejar</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="assets/icone.svg">
+  <link rel="apple-touch-icon" href="assets/icone-180.png">
+  <link rel="preload" href="assets/fontes/PixelifySans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="tela" aria-label="Vila Verdejar"></canvas>
+
+  <!-- Carregando -->
+  <section id="carregando" class="tela-cheia-ui">
+    <div class="logo"><span class="logo-folha"></span>Verdejar</div>
+    <div class="barra"><div id="carregando-barra"></div></div>
+    <p id="carregando-texto">Preparando a vila…</p>
+  </section>
+
+  <!-- Título -->
+  <section id="titulo" class="tela-cheia-ui" hidden>
+    <div class="topo-direita"><button class="btn-icone btn-telacheia" aria-label="Tela cheia"><span class="ico ico-telacheia"></span></button></div>
+    <div class="titulo-centro">
+      <div class="logo grande"><span class="logo-folha"></span>Verdejar</div>
+      <p class="subtitulo">A vila que voltou a respirar</p>
+      <div class="titulo-personagem"><canvas id="titulo-canvas" width="40" height="40"></canvas></div>
+      <div class="pilha-botoes">
+        <button id="btn-jogar" class="btn btn-principal">Jogar</button>
+        <button id="btn-aparencia" class="btn">Meu personagem</button>
+        <button id="btn-opcoes-titulo" class="btn">Opções</button>
+      </div>
+      <p class="rodape-titulo">Melhor com som · funciona em pé ou deitado</p>
+    </div>
+  </section>
+
+  <!-- Editor de personagem -->
+  <section id="editor" class="tela-cheia-ui" hidden>
+    <header class="editor-topo">
+      <button id="ed-voltar" class="btn-icone" aria-label="Voltar"><span class="ico ico-voltar"></span></button>
+      <h1 id="ed-titulo">Crie seu personagem</h1>
+      <button class="btn-icone btn-telacheia" aria-label="Tela cheia"><span class="ico ico-telacheia"></span></button>
+    </header>
+    <div class="editor-corpo">
+      <div class="editor-previa">
+        <div id="ed-palco" class="palco" aria-label="Prévia do personagem. Arraste para girar.">
+          <canvas id="ed-canvas" width="40" height="40"></canvas>
+          <button id="ed-girar-esq" class="btn-girar esq" aria-label="Girar para a esquerda"><span class="ico ico-girar-esq"></span></button>
+          <button id="ed-girar-dir" class="btn-girar dir" aria-label="Girar para a direita"><span class="ico ico-girar-dir"></span></button>
+          <button id="ed-andar" class="chip-palco" aria-pressed="false">Andar</button>
+          <span id="ed-material" class="selo-eco" hidden></span>
+        </div>
+        <label class="campo-nome"><span>Nome</span><input id="ed-nome" maxlength="14" autocomplete="off" enterkeyhint="done" placeholder="Como quer ser chamado?"></label>
+      </div>
+      <div class="editor-opcoes">
+        <nav id="ed-abas" class="abas" role="tablist"></nav>
+        <div id="ed-painel" class="painel-opcoes" role="tabpanel"></div>
+      </div>
+    </div>
+    <footer class="editor-base">
+      <button id="ed-aleatorio" class="btn btn-pequeno"><span class="ico ico-dado"></span><span>Aleatório</span></button>
+      <button id="ed-restaurar" class="btn btn-pequeno"><span class="ico ico-restaurar"></span><span>Restaurar</span></button>
+      <button id="ed-salvar" class="btn btn-pequeno"><span class="ico ico-salvar"></span><span>Salvar</span></button>
+      <button id="ed-confirmar" class="btn btn-principal btn-pequeno"><span class="ico ico-ok"></span><span id="ed-confirmar-texto">Confirmar</span></button>
+    </footer>
+  </section>
+
+  <!-- Confirmação do personagem -->
+  <section id="confirmar" class="modal" hidden>
+    <div class="cartao-modal">
+      <h2>Este é você?</h2>
+      <div class="confirmar-previa"><canvas id="conf-canvas" width="40" height="40"></canvas></div>
+      <p id="conf-nome" class="conf-nome"></p>
+      <div class="linha-botoes">
+        <button id="conf-editar" class="btn">Voltar e editar</button>
+        <button id="conf-ok" class="btn btn-principal">Começar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- HUD -->
+  <div id="hud" hidden>
+    <div class="hud-topo">
+      <div class="medidor" aria-label="Vida da vila">
+        <span class="ico ico-folha"></span>
+        <div class="medidor-barra"><div id="hud-eco"></div></div>
+        <span id="hud-eco-txt">0%</span>
+      </div>
+      <div class="hud-botoes">
+        <button id="btn-diario" class="btn-icone" aria-label="Missões"><span class="ico ico-diario"></span></button>
+        <button class="btn-icone btn-telacheia" aria-label="Tela cheia"><span class="ico ico-telacheia"></span></button>
+        <button id="btn-pausa" class="btn-icone" aria-label="Pausar"><span class="ico ico-pausa"></span></button>
+      </div>
+    </div>
+    <div class="hud-linha2">
+      <div id="hud-missao" class="chip-missao"></div>
+      <div id="hud-inv" class="inventario"></div>
+    </div>
+    <div id="dicas-teclado" class="dicas-teclado"><span><kbd>WASD</kbd> andar</span><span><kbd>E</kbd> interagir</span><span><kbd>J</kbd> missões</span><span><kbd>Esc</kbd> pausa</span></div>
+  </div>
+
+  <!-- Controles de toque -->
+  <div id="toque" hidden>
+    <div id="joystick" hidden><div id="joystick-pino"></div></div>
+    <button id="btn-acao" class="btn-acao" aria-label="Interagir"><span class="ico ico-mao"></span><span id="btn-acao-texto">Interagir</span></button>
+  </div>
+
+  <!-- Diálogo -->
+  <div id="dialogo" hidden>
+    <div class="dialogo-caixa">
+      <canvas id="dialogo-retrato" width="20" height="20"></canvas>
+      <div class="dialogo-corpo">
+        <div id="dialogo-nome" class="dialogo-nome"></div>
+        <p id="dialogo-texto"></p>
+      </div>
+      <span class="dialogo-seta" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <!-- Triagem (separar o lixo) -->
+  <section id="triagem" class="modal" hidden>
+    <div class="cartao-modal triagem-cartao">
+      <h2>Ecoponto: separe o lixo</h2>
+      <p class="triagem-ajuda">Toque num item e depois na lixeira certa (ou arraste).</p>
+      <div id="triagem-itens" class="triagem-itens"></div>
+      <p id="triagem-dica" class="triagem-dica" aria-live="polite"></p>
+      <div id="triagem-lixeiras" class="triagem-lixeiras"></div>
+    </div>
+  </section>
+
+  <!-- Diário de missões -->
+  <section id="diario" class="modal" hidden>
+    <div class="cartao-modal">
+      <h2>Missões</h2>
+      <ul id="diario-lista" class="diario-lista"></ul>
+      <button class="btn btn-principal fechar-modal">Voltar ao jogo</button>
+    </div>
+  </section>
+
+  <!-- Pausa -->
+  <section id="pausa" class="modal" hidden>
+    <div class="cartao-modal">
+      <h2>Pausa</h2>
+      <div class="perfil">
+        <div class="perfil-previa"><canvas id="perfil-canvas" width="40" height="40"></canvas></div>
+        <div class="perfil-info">
+          <p id="perfil-nome" class="perfil-nome"></p>
+          <ul id="perfil-stats" class="perfil-stats"></ul>
+        </div>
+      </div>
+      <div class="pilha-botoes">
+        <button id="pausa-continuar" class="btn btn-principal">Continuar</button>
+        <button id="pausa-aparencia" class="btn">Editar aparência</button>
+        <button id="pausa-opcoes" class="btn">Opções</button>
+        <button id="pausa-titulo" class="btn">Tela inicial</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Opções -->
+  <section id="opcoes" class="modal" hidden>
+    <div class="cartao-modal opcoes-cartao">
+      <h2>Opções</h2>
+      <div class="opcoes-grade">
+        <label class="op"><span>Música</span><input id="op-musica" type="range" min="0" max="100"></label>
+        <label class="op"><span>Efeitos</span><input id="op-efeitos" type="range" min="0" max="100"></label>
+        <div class="op"><span>Sensibilidade do controle</span><div class="segmentado" data-op="sensibilidade"><button data-v="baixa">Suave</button><button data-v="normal">Normal</button><button data-v="alta">Alta</button></div></div>
+        <div class="op"><span>Tamanho dos botões</span><div class="segmentado" data-op="tamanho"><button data-v="p">P</button><button data-v="m">M</button><button data-v="g">G</button></div></div>
+        <div class="op"><span>Botão de ação</span><div class="segmentado" data-op="mao"><button data-v="dir">Direita</button><button data-v="esq">Esquerda</button></div></div>
+        <div class="op"><span>Qualidade gráfica</span><div class="segmentado" data-op="qualidade"><button data-v="auto">Auto</button><button data-v="alta">Alta</button><button data-v="media">Média</button><button data-v="baixa">Baixa</button></div></div>
+        <div class="op"><span>Vibração</span><div class="segmentado" data-op="vibracao"><button data-v="sim">Sim</button><button data-v="nao">Não</button></div></div>
+        <div class="op"><span>Mostrar FPS</span><div class="segmentado" data-op="fps"><button data-v="sim">Sim</button><button data-v="nao">Não</button></div></div>
+      </div>
+      <button id="op-apagar" class="btn btn-perigo btn-pequeno">Apagar progresso</button>
+      <button class="btn btn-principal fechar-modal">Pronto</button>
+    </div>
+  </section>
+
+  <!-- Aviso sobre tela cheia indisponível -->
+  <section id="aviso-telacheia" class="modal" hidden>
+    <div class="cartao-modal">
+      <h2>Tela cheia</h2>
+      <p id="aviso-telacheia-texto"></p>
+      <button class="btn btn-principal fechar-modal">Entendi</button>
+    </div>
+  </section>
+
+  <!-- Fim -->
+  <section id="fim" class="modal" hidden>
+    <div class="cartao-modal">
+      <h2>A vila voltou a respirar!</h2>
+      <div class="confirmar-previa"><canvas id="fim-canvas" width="40" height="40"></canvas></div>
+      <ul id="fim-stats" class="perfil-stats"></ul>
+      <button id="fim-continuar" class="btn btn-principal">Continuar explorando</button>
+    </div>
+  </section>
+
+  <div id="aviso" class="aviso" hidden></div>
+  <div id="fps" class="fps" hidden></div>
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html><meta charset="utf-8"><title>Galeria</title>
+<style>body{background:#7fae5a;margin:8px;font:12px sans-serif}canvas{image-rendering:pixelated}</style>
+<div id="g"></div>
+<script type="module">
+import { folhaDeSprites, APARENCIA_INICIAL, aleatoria, CABELOS, PARTES_CIMA, ESTILOS } from "../src/personagem.js";
+import { semente } from "../src/pixel.js";
+const g = document.getElementById("g");
+const q = new URLSearchParams(location.search);
+const modo = q.get("modo") || "aleat";
+let lista = [];
+if (modo === "cabelos") lista = CABELOS.map(c => ({...APARENCIA_INICIAL, cabelo: c.id}));
+else if (modo === "cima") lista = PARTES_CIMA.map(c => ({...APARENCIA_INICIAL, cima: c.id, estampaCima: "liso"}));
+else if (modo === "estilos") lista = ESTILOS.map(e => ({...APARENCIA_INICIAL, ...e.v}));
+else { const r = semente(+(q.get("s")||1)); for (let i=0;i<10;i++) lista.push(aleatoria(r)); }
+const S = +(q.get("S")||4);
+if (q.get("grade")) {
+  const qd = +(q.get("q")||0);
+  for (const ap of lista) {
+    const f = folhaDeSprites(ap);
+    const c = document.createElement("canvas"); c.width = 24*4*S; c.height = 32*S; c.style.margin="2px";
+    const ctx = c.getContext("2d"); ctx.imageSmoothingEnabled = false;
+    for (let j=0;j<4;j++) ctx.drawImage(f, qd*24, j*32, 24, 32, j*24*S, 0, 24*S, 32*S);
+    c.title = ap.cabelo; g.append(c);
+  }
+  lista = [];
+}
+for (const ap of lista) {
+  const f = folhaDeSprites(ap);
+  const c = document.createElement("canvas");
+  c.width = f.width * S; c.height = f.height * S;
+  const ctx = c.getContext("2d"); ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(f, 0, 0, c.width, c.height);
+  const d = document.createElement("div"); d.textContent = ap.cabelo + " / " + ap.cima + " / " + ap.baixo + " / " + ap.calcado + " / " + ap.cabeca;
+  g.append(d, c);
+}
+document.body.dataset.ok = "1";
+</script>

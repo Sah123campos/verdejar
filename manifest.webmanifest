@@ -1,0 +1,19 @@
+{
+  "name": "Verdejar",
+  "short_name": "Verdejar",
+  "description": "Crie seu personagem e devolva a cor à Vila Verdejar: recicle, plante, economize água e energia.",
+  "lang": "pt-BR",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#12261f",
+  "theme_color": "#12261f",
+  "icons": [
+    { "src": "assets/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
