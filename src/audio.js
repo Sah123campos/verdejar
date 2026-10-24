@@ -100,6 +100,10 @@ export class Audio {
       case "dialogo": this.nota(480 + Math.random() * 80, 0, 0.03, "square", 0.04); break;
       case "passo": this.ruido(0, 0.04, 0.03, 500); break;
       case "abrir": this.nota(440, 0, 0.08, "triangle", 0.12, undefined, 300); break;
+      case "enxada": this.ruido(0, 0.08, 0.22, 900); this.nota(150, 0, 0.08, "triangle", 0.1); break;
+      case "regar": this.ruido(0, 0.3, 0.1, 2600); break;
+      case "colher": [660, 880, 1100].forEach((f, i) => this.nota(f, i * 0.05, 0.08, "triangle", 0.13)); break;
+      case "moeda": this.nota(988, 0, 0.06, "square", 0.08); this.nota(1319, 0.06, 0.14, "square", 0.08); break;
       case "salvar": this.nota(784, 0, 0.08, "triangle", 0.14); this.nota(1175, 0.08, 0.16, "triangle", 0.14); break;
     }
   }

@@ -1,10 +1,10 @@
 // Service worker: guarda os arquivos para o jogo abrir sem internet.
 // Estratégia "rede primeiro": sempre tenta a versão mais nova e usa o cache se estiver offline.
-const CACHE = "verdejar-v1";
+const CACHE = "raizes-v1";
 const ARQUIVOS = [
   "./", "index.html", "css/estilo.css", "manifest.webmanifest", "assets/icone.svg", "assets/fontes/PixelifySans.woff2",
-  "src/main.js", "src/jogo.js", "src/mundo.js", "src/personagem.js", "src/pixel.js", "src/editor.js",
-  "src/entrada.js", "src/audio.js", "src/telacheia.js", "src/triagem.js", "src/ui.js", "src/salvar.js",
+  "src/main.js", "src/tela.js", "src/fazenda.js", "src/painel.js", "src/arte.js", "src/dados.js", "src/estado.js", "src/simulacao.js", "src/acoes.js", "src/missoes.js",
+  "src/personagem.js", "src/pixel.js", "src/editor.js", "src/entrada.js", "src/audio.js", "src/telacheia.js", "src/ui.js", "src/salvar.js",
 ];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ARQUIVOS)).catch(() => {}));

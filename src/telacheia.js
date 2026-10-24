@@ -84,7 +84,7 @@ export class TelaCheia {
     this.ampliado = true;
     this.atualizar();
     const msg = ehIOS()
-      ? "O Safari do iPhone não deixa páginas comuns ocuparem a tela inteira. Ativamos o modo ampliado. Para jogar em tela cheia de verdade, toque em Compartilhar e depois em “Adicionar à Tela de Início”: o Verdejar abre como aplicativo, sem barras, em pé ou deitado."
+      ? "O Safari do iPhone não deixa páginas comuns ocuparem a tela inteira. Ativamos o modo ampliado. Para jogar em tela cheia de verdade, toque em Compartilhar e depois em “Adicionar à Tela de Início”: o Raízes do Sertão abre como aplicativo, sem barras, em pé ou deitado."
       : "Este navegador não permitiu a tela cheia agora. Ativamos o modo ampliado. Você também pode instalar o jogo pelo menu do navegador (“Instalar app” ou “Adicionar à tela inicial”) para abri-lo sem barras.";
     this.aoAvisar(msg, true);
   }

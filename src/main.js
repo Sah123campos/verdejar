@@ -1,15 +1,18 @@
-// Início do jogo: carregamento, telas (título, editor, jogo), HUD, opções e laço principal.
-import { Tela, Jogo, MISSOES } from "./jogo.js";
+// Raízes do Sertão: início, telas (título, editor, fazenda), opções e laço principal.
+import { Tela } from "./tela.js";
 import { Entrada } from "./entrada.js";
 import { Audio } from "./audio.js";
 import { Editor } from "./editor.js";
 import { TelaCheia } from "./telacheia.js";
+import { Fazenda } from "./fazenda.js";
+import { UI } from "./painel.js";
+import * as E from "./estado.js";
+import * as A from "./arte.js";
 import { folhaDeSprites, normalizar, LARG, ALT, DIRECOES } from "./personagem.js";
-import { iconeLixo } from "./mundo.js";
-import { ler, gravar, apagar } from "./salvar.js";
-import { $, aviso, abrirModal, fecharModal, modalAberto, desenharPrevia, configurarVibracao, vibrar } from "./ui.js";
+import { ler, gravar } from "./salvar.js";
+import { $, aviso, abrirModal, modalAberto, desenharPrevia, configurarVibracao } from "./ui.js";
 
-const OPCOES_PADRAO = { musica: 45, efeitos: 70, sensibilidade: "normal", tamanho: "m", mao: "dir", qualidade: "auto", vibracao: "sim", fps: "nao" };
+const OPCOES_PADRAO = { musica: 45, efeitos: 70, sensibilidade: "normal", tamanho: "m", qualidade: "auto", animacoes: "sim", vibracao: "sim", fps: "nao" };
 const NIVEIS = { alta: 1, media: 0.6, baixa: 0.3 };
 
 const tela = new Tela($("tela"));
@@ -17,47 +20,46 @@ const entrada = new Entrada($("tela"));
 const audio = new Audio();
 let opcoes = { ...OPCOES_PADRAO, ...(ler("opcoes") || {}) };
 let aparencia = ler("aparencia") ? normalizar(ler("aparencia")) : null;
+let estado = "carregando"; // titulo | editor | jogando
 let origemEditor = "titulo";
+let novaDepoisDoEditor = false;
 let nivelAuto = "alta";
+let ultimoSalvo = 0;
+let partidaAtiva = false; // só salva depois de começar ou continuar uma partida
 
-const jogo = new Jogo({
-  tela, entrada, audio,
-  aoAbrirEditor: (modo) => abrirEditor(modo, "jogo"),
-  aoFim: () => mostrarFim(),
+const ui = new UI({
+  audio,
+  aoEditar: () => abrirEditor("editar", "jogo"),
+  aoTitulo: () => { salvar(true); mostrarTitulo(); },
+  aoOpcoes: () => abrirModal("opcoes"),
+  aoSalvar: () => salvar(false),
 });
+const faz = new Fazenda({ tela, entrada, audio, ui });
 
 const editor = new Editor({
   audio,
-  aoConfirmar: (ap, modo) => {
+  aoConfirmar: (ap) => {
     aparencia = ap;
-    jogo.definirAparencia(ap);
     if (origemEditor === "jogo") {
-      jogo.visualTrocado();
-      aviso("Visual novo! Sua aparência já está no jogo.");
-      jogo.estado = "jogando";
+      faz.definirAparencia(ap);
+      aviso("Visual novo! Sua aparência já está na fazenda.");
       mostrarJogo();
-    } else if (modo === "criar") {
-      comecarPartida();
+    } else if (novaDepoisDoEditor) {
+      novaDepoisDoEditor = false;
+      comecar(E.novoEstado());
     } else {
       mostrarTitulo();
       aviso("Aparência salva.");
     }
   },
-  aoVoltar: () => {
-    if (origemEditor === "jogo") {
-      jogo.estado = "jogando";
-      mostrarJogo();
-    } else mostrarTitulo();
-  },
+  aoVoltar: () => (origemEditor === "jogo" ? mostrarJogo() : mostrarTitulo()),
 });
 
 const telaCheia = new TelaCheia({
   aoMudar: () => tela.reajustar(),
   aoAvisar: (msg, importante) => {
-    if (importante) {
-      $("aviso-telacheia-texto").textContent = msg;
-      abrirModal("aviso-telacheia");
-    } else aviso(msg, { dur: 3500 });
+    if (importante) { $("aviso-telacheia-texto").textContent = msg; abrirModal("aviso-telacheia"); }
+    else aviso(msg, { dur: 3500 });
   },
 });
 
@@ -66,21 +68,18 @@ function aplicarOpcoes() {
   audio.definirVolumes(opcoes.musica / 100, opcoes.efeitos / 100);
   entrada.definirSensibilidade(opcoes.sensibilidade);
   document.documentElement.dataset.tamanho = opcoes.tamanho;
-  document.documentElement.classList.toggle("mao-esq", opcoes.mao === "esq");
+  document.documentElement.classList.toggle("sem-animacao", opcoes.animacoes === "nao");
   configurarVibracao(opcoes.vibracao === "sim");
   $("fps").hidden = opcoes.fps !== "sim";
-  jogo.qualidade = NIVEIS[opcoes.qualidade === "auto" ? nivelAuto : opcoes.qualidade];
+  faz.qualidade = NIVEIS[opcoes.qualidade === "auto" ? nivelAuto : opcoes.qualidade];
   $("op-musica").value = opcoes.musica;
   $("op-efeitos").value = opcoes.efeitos;
-  for (const seg of document.querySelectorAll(".segmentado")) {
-    for (const b of seg.children) b.setAttribute("aria-pressed", String(opcoes[seg.dataset.op] === b.dataset.v));
-  }
+  for (const seg of document.querySelectorAll("#opcoes .segmentado")) for (const b of seg.children) b.setAttribute("aria-pressed", String(opcoes[seg.dataset.op] === b.dataset.v));
   gravar("opcoes", opcoes);
 }
 $("op-musica").addEventListener("input", (e) => { opcoes.musica = +e.target.value; aplicarOpcoes(); });
 $("op-efeitos").addEventListener("input", (e) => { opcoes.efeitos = +e.target.value; aplicarOpcoes(); });
-$("op-efeitos").addEventListener("change", () => audio.efeito("selecao"));
-for (const seg of document.querySelectorAll(".segmentado")) {
+for (const seg of document.querySelectorAll("#opcoes .segmentado")) {
   seg.addEventListener("click", (e) => {
     const b = e.target.closest("button");
     if (!b) return;
@@ -89,257 +88,138 @@ for (const seg of document.querySelectorAll(".segmentado")) {
     aplicarOpcoes();
   });
 }
-$("op-apagar").addEventListener("click", () => {
-  if (!confirm("Apagar o progresso da vila? Sua aparência continua salva.")) return;
-  jogo.apagarProgresso();
-  aviso("Progresso apagado.");
-  atualizarBotaoJogar();
-});
-for (const b of document.querySelectorAll(".fechar-modal")) {
-  b.addEventListener("click", () => {
-    audio.efeito("toque");
-    const m = b.closest(".modal");
-    m.hidden = true;
-    if (m.id === "opcoes" && jogo.estado === "pausa") abrirModal("pausa");
-  });
+for (const b of document.querySelectorAll(".fechar-modal")) b.addEventListener("click", () => { audio.efeito("toque"); b.closest(".modal").hidden = true; });
+
+// ícones fixos do HUD
+for (const c of document.querySelectorAll("canvas[data-ic]")) {
+  const g = c.getContext("2d");
+  g.imageSmoothingEnabled = false;
+  g.drawImage(A.icone(c.dataset.ic), 0, 0);
 }
 
 // ---------------------------------------------------------------- Telas
 function esconderTudo() {
-  for (const id of ["carregando", "titulo", "hud", "toque", "dialogo"]) $(id).hidden = true;
+  for (const id of ["carregando", "titulo", "hud", "toque", "dialogo", "folha"]) $(id).hidden = true;
   for (const m of document.querySelectorAll(".modal")) m.hidden = true;
-}
-
-function atualizarBotaoJogar() {
-  const p = ler("progresso");
-  $("btn-jogar").textContent = aparencia && p && p.tempo > 5 ? "Continuar" : "Jogar";
+  ui.folhaAtual = null;
+  ui.dialogo = null;
 }
 
 function mostrarTitulo() {
   esconderTudo();
   editor.fechar();
-  jogo.estado = "titulo";
+  estado = "titulo";
   entrada.ativo = false;
   $("titulo").hidden = false;
-  atualizarBotaoJogar();
+  const tem = E.existeSave();
+  $("btn-continuar").hidden = !tem;
+  $("btn-nova").classList.toggle("btn-principal", !tem);
   $("btn-aparencia").textContent = aparencia ? "Meu personagem" : "Criar personagem";
+  // fundo do título: uma fazenda de exemplo
+  if (!faz.e) faz.iniciar(E.carregar() || E.novoEstado(), aparencia || normalizar({}));
 }
 
 function mostrarJogo() {
   esconderTudo();
+  estado = "jogando";
   $("hud").hidden = false;
   $("toque").hidden = false;
   entrada.ativo = true;
-  atualizarHud(true);
+  ui.atualizarHud(true);
 }
 
 function abrirEditor(modo, origem) {
   origemEditor = origem;
-  if (origem === "jogo") {
-    jogo.estado = "editor";
-    entrada.ativo = false;
-    entrada.soltar();
-  }
+  estado = "editor";
+  entrada.ativo = false;
+  entrada.soltar();
   esconderTudo();
   editor.abrir(modo, aparencia);
 }
 
-function comecarPartida() {
+function comecar(est) {
+  partidaAtiva = true;
+  faz.iniciar(est, aparencia);
+  ui.ligar(faz);
   mostrarJogo();
-  jogo.definirAparencia(aparencia);
-  jogo.iniciarPartida();
   audio.iniciarMusica();
-}
-
-$("btn-jogar").addEventListener("click", () => {
-  audio.destravar();
-  audio.efeito("abrir");
-  if (!aparencia) abrirEditor("criar", "titulo");
-  else comecarPartida();
-});
-$("btn-aparencia").addEventListener("click", () => {
-  audio.destravar();
-  audio.efeito("abrir");
-  abrirEditor(aparencia ? "editar" : "criar", "titulo");
-});
-$("btn-opcoes-titulo").addEventListener("click", () => { audio.destravar(); audio.efeito("abrir"); abrirModal("opcoes"); });
-
-// ---------------------------------------------------------------- HUD e menus
-$("btn-pausa").addEventListener("click", () => abrirPausa());
-$("btn-diario").addEventListener("click", () => abrirDiario());
-$("pausa-continuar").addEventListener("click", () => fecharPausa());
-$("pausa-aparencia").addEventListener("click", () => { fecharModal("pausa"); jogo.estado = "jogando"; abrirEditor("editar", "jogo"); });
-$("pausa-opcoes").addEventListener("click", () => { fecharModal("pausa"); abrirModal("opcoes"); });
-$("pausa-titulo").addEventListener("click", () => { jogo.salvar(); audio.pararMusica(); mostrarTitulo(); });
-$("fim-continuar").addEventListener("click", () => { fecharModal("fim"); audio.efeito("toque"); });
-$("dialogo").addEventListener("click", () => entrada.disparar("interagir"));
-
-const btnAcao = $("btn-acao");
-btnAcao.addEventListener("pointerdown", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  btnAcao.classList.add("pressionado");
-  entrada.disparar("interagir");
-  vibrar(8);
-});
-const soltarAcao = () => btnAcao.classList.remove("pressionado");
-btnAcao.addEventListener("pointerup", soltarAcao);
-btnAcao.addEventListener("pointerleave", soltarAcao);
-btnAcao.addEventListener("contextmenu", (e) => e.preventDefault());
-
-function abrirPausa() {
-  if (jogo.estado !== "jogando" || jogo.dialogo) return;
-  audio.efeito("abrir");
-  jogo.pausar(true);
-  const folha = folhaDeSprites(aparencia);
-  desenharPrevia($("perfil-canvas"), folha, "baixo", 0, LARG, ALT, DIRECOES);
-  $("perfil-nome").textContent = aparencia.nome || "Sem nome";
-  preencherStats($("perfil-stats"));
-  abrirModal("pausa");
-}
-function fecharPausa() {
-  fecharModal("pausa");
-  audio.efeito("toque");
-  jogo.pausar(false);
-}
-
-function preencherStats(ul) {
-  const p = jogo.p;
-  const min = Math.floor(p.tempo / 60);
-  const precisao = p.separados ? Math.round((p.acertosPrimeira / p.separados) * 100) : 0;
-  const linhas = [
-    ["Vida da vila", `${Math.round(jogo.eco() * 100)}%`],
-    ["Lixo separado", `${p.separados} itens (${precisao}% de primeira)`],
-    ["Árvores plantadas", p.plantadas.length],
-    ["Água poupada", `cerca de ${p.consertos.length * 45} L por dia`],
-    ["Energia limpa", `${p.paineis.length} painéis · ${p.apagadas.length} lâmpadas apagadas`],
-    ["Trocas de visual", p.trocasVisual],
-    ["Tempo de jogo", `${min} min`],
-  ];
-  ul.replaceChildren(...linhas.map(([a, b]) => {
-    const li = document.createElement("li");
-    const s1 = document.createElement("span");
-    s1.textContent = a;
-    const s2 = document.createElement("b");
-    s2.textContent = b;
-    li.append(s1, s2);
-    return li;
-  }));
-}
-
-function abrirDiario() {
-  if (jogo.estado !== "jogando" || jogo.dialogo) return;
-  audio.efeito("abrir");
-  jogo.entrada.soltar();
-  const ul = $("diario-lista");
-  ul.replaceChildren();
-  for (const m of MISSOES) {
-    const v = jogo.progressoMissao(m);
-    const li = document.createElement("li");
-    if (v >= m.total) li.className = "feita";
-    const b = document.createElement("b");
-    b.textContent = `${m.nome} — ${v}/${m.total}`;
-    const s = document.createElement("span");
-    s.textContent = m.desc;
-    const pr = document.createElement("div");
-    pr.className = "progresso";
-    const i = document.createElement("i");
-    i.style.width = `${(v / m.total) * 100}%`;
-    pr.append(i);
-    li.append(b, s, pr);
-    ul.append(li);
+  salvar(true);
+  if (!est.tutorialVisto) {
+    est.tutorialVisto = true;
+    setTimeout(() => ui.falar([
+      { quem: "zefa", texto: "Bem-vindo à roça, {nome}! Eu sou a Vó Zefa." },
+      { quem: "zefa", texto: "Embaixo fica a barra de ferramentas. Escolha uma e toque no chão: você vai até lá e faz o serviço." },
+      { quem: "zefa", texto: "Em cima, suas moedas, seu nível e a água da cisterna. Água aqui é contada!" },
+      { quem: "zefa", texto: "Comece pela enxada: prepare a terra limpinha perto da cerca. O quadrado amarelo mostra onde." },
+    ], () => salvar(true)), 600);
   }
-  const extra = document.createElement("li");
-  if (jogo.p.trocasVisual > 0) extra.className = "feita";
-  const b = document.createElement("b");
-  b.textContent = "Estilo circular (opcional)";
-  const s = document.createElement("span");
-  s.textContent = "Visite o Brechó Circular e renove o visual sem comprar nada novo.";
-  extra.append(b, s);
-  ul.append(extra);
-  abrirModal("diario");
 }
 
-function mostrarFim() {
-  const folha = folhaDeSprites(aparencia);
-  desenharPrevia($("fim-canvas"), folha, "baixo", 0, LARG, ALT, DIRECOES);
-  preencherStats($("fim-stats"));
-  abrirModal("fim");
-}
+$("btn-continuar").addEventListener("click", () => {
+  audio.destravar();
+  const est = E.carregar();
+  if (!est) { aviso("Não encontrei a fazenda salva."); return; }
+  if (!aparencia) { novaDepoisDoEditor = false; abrirEditor("criar", "titulo"); return; }
+  comecar(est);
+});
+$("btn-nova").addEventListener("click", () => {
+  audio.destravar();
+  if (E.existeSave() && !confirm("Começar uma fazenda nova? A fazenda salva será substituída.")) return;
+  if (!aparencia) { novaDepoisDoEditor = true; abrirEditor("criar", "titulo"); return; }
+  comecar(E.novoEstado());
+});
+$("btn-aparencia").addEventListener("click", () => { audio.destravar(); abrirEditor(aparencia ? "editar" : "criar", "titulo"); });
+$("btn-opcoes-titulo").addEventListener("click", () => { audio.destravar(); abrirModal("opcoes"); });
 
-let ultimoHud = 0;
-let invAnterior = "";
-function atualizarHud(forcar) {
+function salvar(forcar) {
+  if (!partidaAtiva || !faz.e) return;
+  if (estado !== "jogando" && !forcar) return;
   const agora = performance.now();
-  if (!forcar && agora - ultimoHud < 200) return;
-  ultimoHud = agora;
-  const e = Math.round(jogo.eco() * 100);
-  $("hud-eco").style.width = `${e}%`;
-  $("hud-eco-txt").textContent = `${e}%`;
-  const obj = jogo.objetivo ?? jogo.objetivoAtual();
-  const txt = obj ? obj.texto : e >= 100 ? "A vila está viva! Explore à vontade." : "";
-  if ($("hud-missao").dataset.t !== txt) {
-    $("hud-missao").dataset.t = txt;
-    $("hud-missao").innerHTML = txt; // textos fixos do próprio jogo
-  }
-  const p = jogo.p;
-  const inv = `${p.sacola.length}|${p.mudas}|${p.paineisInv}|${p.ferramenta}`;
-  if (inv !== invAnterior) {
-    invAnterior = inv;
-    const box = $("hud-inv");
-    box.replaceChildren();
-    const chip = (icone, texto, rotulo) => {
-      const s = document.createElement("span");
-      s.setAttribute("aria-label", rotulo);
-      if (icone) { const c = document.createElement("canvas"); c.width = 12; c.height = 12; c.getContext("2d").drawImage(icone, 0, 0); s.append(c); }
-      s.append(texto);
-      box.append(s);
-    };
-    chip(iconeLixo("sacola"), `${p.sacola.length}/6`, "Sacola");
-    if (p.mudas) chip(null, `Mudas ${p.mudas}`, "Mudas");
-    if (p.paineisInv) chip(null, `Painéis ${p.paineisInv}`, "Painéis");
-  }
-  const f = jogo.foco;
-  btnAcao.classList.toggle("inativo", !f);
-  $("btn-acao-texto").textContent = f ? f.rotulo : "Interagir";
+  if (!forcar && agora - ultimoSalvo < 1500) return;
+  ultimoSalvo = agora;
+  E.salvarEstado(faz.e);
 }
 
 // ---------------------------------------------------------------- Laço
 let anterior = performance.now();
-let acumFps = 0, quadros = 0, janelaQ = 0, piorMedio = 0;
+let acumFps = 0, quadros = 0, janelaQ = 0, media = 0, tSalvar = 0;
 function laco(agora) {
   const dt = Math.min(0.05, (agora - anterior) / 1000);
   anterior = agora;
-  const acoes = jogo.atualizar(dt) || [];
-  for (const a of acoes) {
-    if (a === "pausa") {
-      if (!$("pausa").hidden) fecharPausa();
-      else if (!modalAberto()) abrirPausa();
+  if (estado === "jogando" || estado === "titulo") {
+    faz.pausado = estado !== "jogando" || ui.aberto || modalAberto() || !!faz.colocando;
+    if (faz.colocando) faz.pausado = true;
+    const r = faz.atualizar(estado === "jogando" ? dt : 0);
+    if (estado === "titulo") { faz.cam.x += Math.sin(agora / 6000) * 0.15; faz.cam.y += Math.cos(agora / 7000) * 0.1; }
+    if (estado === "jogando") {
+      if (r.eventos?.length) ui.eventos(r.eventos);
+      for (const a of r.acoes || []) {
+        if (a === "pausa") { if (ui.folhaAtual) ui.fecharFolha(); else ui.abrir({ tipo: "menu" }); }
+        if (a === "telacheia") telaCheia.alternar();
+        if (a === "interagir" && ui.dialogo) ui.avancarDialogo();
+      }
+      ui.atualizarHud(false);
+      tSalvar += dt;
+      if (tSalvar > 5) { tSalvar = 0; salvar(true); }
     }
-    if (a === "diario") { if (!$("diario").hidden) fecharModal("diario"); else if (!modalAberto()) abrirDiario(); }
-    if (a === "telacheia") telaCheia.alternar();
+    faz.desenhar();
   }
-  if (jogo.estado !== "editor") jogo.desenhar();
-  if (jogo.estado === "jogando") atualizarHud(false);
-  if (jogo.estado === "titulo" && aparencia && !$("titulo").hidden) {
-    desenharPrevia($("titulo-canvas"), folhaDeSprites(aparencia), "baixo", Math.floor(agora / 600) % 2, LARG, ALT, DIRECOES);
-  }
-  // FPS e qualidade automática
+  if (estado === "titulo" && aparencia) desenharPrevia($("titulo-canvas"), folhaDeSprites(aparencia), "baixo", Math.floor(agora / 600) % 2, LARG, ALT, DIRECOES);
   acumFps += dt;
   quadros++;
   if (acumFps >= 1) {
     const fps = quadros / acumFps;
     $("fps").textContent = `${Math.round(fps)} fps · ${tela.w}×${tela.h} ×${tela.escala}`;
-    if (opcoes.qualidade === "auto" && jogo.estado === "jogando") {
-      janelaQ++;
-      piorMedio = piorMedio ? piorMedio * 0.6 + fps * 0.4 : fps;
-      if (janelaQ >= 3) {
+    if (opcoes.qualidade === "auto" && estado === "jogando") {
+      media = media ? media * 0.6 + fps * 0.4 : fps;
+      if (++janelaQ >= 3) {
         janelaQ = 0;
         const ordem = ["baixa", "media", "alta"];
         let i = ordem.indexOf(nivelAuto);
-        if (piorMedio < 40 && i > 0) i--;
-        else if (piorMedio > 57 && i < 2) i++;
-        if (ordem[i] !== nivelAuto) { nivelAuto = ordem[i]; jogo.qualidade = NIVEIS[nivelAuto]; }
+        if (media < 40 && i > 0) i--;
+        else if (media > 57 && i < 2) i++;
+        nivelAuto = ordem[i];
+        faz.qualidade = NIVEIS[nivelAuto];
       }
     }
     acumFps = 0;
@@ -348,42 +228,31 @@ function laco(agora) {
   requestAnimationFrame(laco);
 }
 
-// pausa automática ao sair do app/aba
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    jogo.salvar();
-    if (jogo.estado === "jogando" && !jogo.dialogo && !modalAberto()) abrirPausa();
-    audio.pausarTudo(true);
-  } else audio.pausarTudo(false);
+  if (document.hidden) { salvar(true); audio.pausarTudo(true); }
+  else audio.pausarTudo(false);
 });
-window.addEventListener("pagehide", () => jogo.salvar());
-// primeiro toque libera o áudio
+window.addEventListener("pagehide", () => salvar(true));
 window.addEventListener("pointerdown", () => audio.destravar(), { once: true, capture: true });
-// impede gestos de zoom/rolagem acidentais durante a partida
 document.addEventListener("gesturestart", (e) => e.preventDefault());
 document.addEventListener("dblclick", (e) => e.preventDefault());
 
-// ---------------------------------------------------------------- Início
 async function iniciar() {
   aplicarOpcoes();
   const barra = $("carregando-barra");
-  await jogo.preparar((v, txt) => {
-    barra.style.width = `${Math.round(v * 100)}%`;
-    $("carregando-texto").textContent = txt;
-  });
-  if (aparencia) jogo.definirAparencia(aparencia);
-  barra.style.width = "100%";
+  const passo = (v, t) => new Promise((r) => { barra.style.width = `${v * 100}%`; $("carregando-texto").textContent = t; setTimeout(r, 0); });
+  await passo(0.2, "Preparando a terra…");
+  faz.preparar();
+  await passo(0.7, "Chamando a vizinhança…");
+  for (const id of ["coentro", "alface", "feijao", "milho"]) for (let k = 0; k < 4; k++) A.culturaSprite(id, k);
+  await passo(1, "Pronto!");
   requestAnimationFrame(laco);
-  setTimeout(mostrarTitulo, 150);
-  if ("serviceWorker" in navigator && location.protocol !== "file:" && !new URLSearchParams(location.search).has("semsw")) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  }
+  mostrarTitulo();
+  if ("serviceWorker" in navigator && location.protocol !== "file:" && !new URLSearchParams(location.search).has("semsw")) navigator.serviceWorker.register("sw.js").catch(() => {});
 }
-iniciar().catch((e) => {
+iniciar().catch((err) => {
   $("carregando-texto").textContent = "Não foi possível carregar o jogo. Atualize a página.";
-  console.error(e);
+  console.error(err);
 });
 
-// Atalhos para testes automatizados
-window.__verdejar = { jogo, editor, tela, telaCheia, entrada };
-void apagar;
+window.__raizes = { faz, ui, tela, editor, telaCheia, entrada, E };
