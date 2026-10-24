@@ -2,7 +2,7 @@
 <style>body{background:#7fae5a;margin:8px;font:12px sans-serif}canvas{image-rendering:pixelated}</style>
 <div id="g"></div>
 <script type="module">
-import { folhaDeSprites, APARENCIA_INICIAL, aleatoria, CABELOS, PARTES_CIMA, ESTILOS } from "../src/personagem.js";
+import { folhaDeSprites, APARENCIA_INICIAL, aleatoria, CABELOS, PARTES_CIMA, ESTILOS, VISUAIS, CORPOS, normalizar } from "../src/personagem.js";
 import { semente } from "../src/pixel.js";
 const g = document.getElementById("g");
 const q = new URLSearchParams(location.search);
@@ -10,6 +10,8 @@ const modo = q.get("modo") || "aleat";
 let lista = [];
 if (modo === "cabelos") lista = CABELOS.map(c => ({...APARENCIA_INICIAL, cabelo: c.id}));
 else if (modo === "cima") lista = PARTES_CIMA.map(c => ({...APARENCIA_INICIAL, cima: c.id, estampaCima: "liso"}));
+else if (modo === "visuais") lista = VISUAIS.map(e => normalizar(e.v));
+else if (modo === "corpos") lista = CORPOS.flatMap(c => ["camiseta","moletom","vestido"].map(t => ({...APARENCIA_INICIAL, cabelo: "curto", corpo: c.id, cima: t})));
 else if (modo === "estilos") lista = ESTILOS.map(e => ({...APARENCIA_INICIAL, ...e.v}));
 else { const r = semente(+(q.get("s")||1)); for (let i=0;i<10;i++) lista.push(aleatoria(r)); }
 const S = +(q.get("S")||4);

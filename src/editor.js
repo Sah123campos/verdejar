@@ -7,6 +7,7 @@ import { ler, gravar } from "./salvar.js";
 import { $, aviso, abrirModal, fecharModal, desenharPrevia, vibrar } from "./ui.js";
 
 const ABAS = [
+  { id: "visuais", nome: "Visuais" },
   { id: "estilos", nome: "Estilos" },
   { id: "corpo", nome: "Corpo e rosto" },
   { id: "cabelos", nome: "Cabelos" },
@@ -35,7 +36,7 @@ export class Editor {
     this.aoConfirmar = aoConfirmar;
     this.aoVoltar = aoVoltar;
     this.ap = { ...P.APARENCIA_INICIAL };
-    this.aba = "estilos";
+    this.aba = "visuais";
     this.giro = 0;
     this.andando = false;
     this.modo = "criar";
@@ -108,7 +109,7 @@ export class Editor {
     $("ed-nome").value = this.ap.nome;
     $("editor").hidden = false;
     this.giro = 0;
-    this.trocarAba(modo === "brecho" ? "roupas" : this.aba);
+    this.trocarAba(modo === "brecho" ? "roupas" : modo === "criar" ? "visuais" : this.aba);
     this.atualizarPrevia(false);
     cancelAnimationFrame(this.raf);
     const laco = (t) => {
@@ -158,19 +159,24 @@ export class Editor {
     p.replaceChildren();
     const ap = this.ap;
     switch (this.aba) {
+      case "visuais":
+        p.append(this.nota("Escolha um visual para começar. Depois, mude corpo, cabelo, roupas e cores como quiser."));
+        p.append(this.secaoVisuais());
+        break;
       case "estilos":
         p.append(this.nota("Estilos prontos trocam só as roupas e acessórios. Depois, misture as peças como quiser."));
         p.append(this.secaoEstilos());
         break;
       case "corpo":
         p.append(this.secaoCores("Tom de pele", P.PELES, "pele"));
+        p.append(this.secaoMini("Formato do corpo", P.CORPOS, "corpo", "corpo"));
         p.append(this.secaoMini("Formato do rosto", P.ROSTOS, "rosto", "rosto"));
         p.append(this.secaoMini("Olhos", P.OLHOS, "olhos", "rosto"));
         p.append(this.secaoCores("Cor dos olhos", P.CORES_OLHOS, "corOlhos"));
         p.append(this.secaoDetalhes());
         break;
       case "cabelos":
-        p.append(this.secaoMini("Corte", P.CABELOS, "cabelo", "cabeca", { comCostas: true }));
+        p.append(this.secaoMini("Corte", P.CABELOS, "cabelo", "cabeca", { semChapeu: true }));
         p.append(this.secaoCores("Cor do cabelo", P.CORES_CABELO, "corCabelo"));
         break;
       case "roupas": {
@@ -274,6 +280,7 @@ export class Editor {
     g.className = "grade";
     for (const o of lista) {
       const ap2 = { ...this.ap, [chave]: o.id };
+      if (opts.semChapeu) ap2.cabeca = "nenhum"; // para o corte aparecer inteiro
       // Para ver bem a estampa, a miniatura mostra a peça com estampa mesmo se a cor 2 for igual.
       const b = this.botaoOpcao(o.nome, this.ap[chave] === o.id, () => this.mudar({ [chave]: o.id }), this.miniatura(ap2, recorte, opts.dir));
       g.append(b);
@@ -332,6 +339,19 @@ export class Editor {
       b.append(t, i);
       b.addEventListener("click", () => this.mudar({ [chave]: m.id }));
       g.append(b);
+    }
+    s.append(g);
+    return s;
+  }
+
+  secaoVisuais() {
+    const s = this.secao("Visuais");
+    const g = document.createElement("div");
+    g.className = "grade grande";
+    for (const v of P.VISUAIS) {
+      const ap2 = P.normalizar({ ...v.v, nome: this.ap.nome });
+      const igual = Object.entries(v.v).every(([k, x]) => JSON.stringify(this.ap[k]) === JSON.stringify(x));
+      g.append(this.botaoOpcao(v.nome, igual, () => this.mudar({ ...P.APARENCIA_INICIAL, ...v.v, nome: this.ap.nome }), this.miniatura(ap2, "corpo")));
     }
     s.append(g);
     return s;

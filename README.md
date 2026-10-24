@@ -7,8 +7,9 @@ Feito primeiro para celular, em pé ou deitado. Funciona também no computador.
 ## Criação de personagem
 
 - Prévia que muda na hora, com giro em 4 direções (botões ou arrastando) e opção "Andar".
-- Abas: Estilos prontos, Corpo e rosto, Cabelos, Roupas, Calçados, Acessórios e Cores. Nenhuma opção é separada por gênero: qualquer peça combina com qualquer outra.
-- 10 tons de pele, 5 formatos de rosto, 5 tipos de olhos, detalhes (sardas, pinta, barba, bigode…), 18 cortes de cabelo, 16 cores de cabelo, 12 partes de cima, 7 de baixo, 5 calçados, acessórios de cabeça, rosto, pescoço e costas, 8 estampas e 6 materiais (algodão orgânico, jeans reciclado, PET reciclado, cânhamo, retalhos, tecido tech).
+- Abas: Visuais, Estilos, Corpo e rosto, Cabelos, Roupas, Calçados, Acessórios e Cores. Nenhuma opção é separada por gênero: qualquer peça combina com qualquer outra.
+- **Visuais**: 12 personagens completos e variados (Skate, Horta, Trilha, Praia, Cidade, Neon, Esporte, Arte, Leitura, Música, Inverno, Feira) para começar rápido e depois mudar o que quiser.
+- 10 tons de pele, 3 formatos de corpo (reto, ombros largos, com curvas), 5 formatos de rosto, 5 tipos de olhos, detalhes (sardas, pinta, barba, bigode…), 20 cortes de cabelo (incluindo social e degradê), 16 cores de cabelo, 12 partes de cima, 7 de baixo, 5 calçados, acessórios de cabeça, rosto, pescoço e costas, 8 estampas e 6 materiais (algodão orgânico, jeans reciclado, PET reciclado, cânhamo, retalhos, tecido tech).
 - Botões: Aleatório, Restaurar (com Desfazer), Salvar e Confirmar → "Este é você?" com Voltar e editar ou Começar.
 - Tudo fica salvo no aparelho (localStorage). O rascunho também, caso a página feche no meio.
 - A aparência é a do sprite usado no jogo. Dá para trocar de visual no Brechó Circular, no provador (o espelho reflete o personagem) ou pelo menu de pausa.
@@ -40,7 +41,7 @@ python3 -m http.server 8790
 
 Abra `http://127.0.0.1:8790/`. Para publicar, qualquer hospedagem estática serve (GitHub Pages, Netlify…).
 
-`ferramentas/galeria.html` mostra os sprites gerados (`?modo=cabelos&grade=1`, `?modo=cima&grade=1`, `?modo=estilos&grade=1`).
+`ferramentas/galeria.html` mostra os sprites gerados (`?modo=cabelos&grade=1`, `?modo=cima&grade=1`, `?modo=estilos&grade=1`, `?modo=visuais&grade=1`, `?modo=corpos&grade=1`).
 
 ## Organização
 
