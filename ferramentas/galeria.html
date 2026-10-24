@@ -12,6 +12,7 @@ if (modo === "cabelos") lista = CABELOS.map(c => ({...APARENCIA_INICIAL, cabelo:
 else if (modo === "cima") lista = PARTES_CIMA.map(c => ({...APARENCIA_INICIAL, cima: c.id, estampaCima: "liso"}));
 else if (modo === "visuais") lista = VISUAIS.map(e => normalizar(e.v));
 else if (modo === "corpos") lista = CORPOS.flatMap(c => ["camiseta","moletom","vestido"].map(t => ({...APARENCIA_INICIAL, cabelo: "curto", corpo: c.id, cima: t})));
+else if (modo === "fazenda") lista = [...ESTILOS.filter(e => ["fazenda","colheita"].includes(e.id)).map(e => ({...APARENCIA_INICIAL, ...e.v})), ...VISUAIS.filter(v => ["roca","colheita","curral"].includes(v.id)).map(v => normalizar(v.v))];
 else if (modo === "estilos") lista = ESTILOS.map(e => ({...APARENCIA_INICIAL, ...e.v}));
 else { const r = semente(+(q.get("s")||1)); for (let i=0;i<10;i++) lista.push(aleatoria(r)); }
 const S = +(q.get("S")||4);

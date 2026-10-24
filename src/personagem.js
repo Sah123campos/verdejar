@@ -87,6 +87,9 @@ export const PARTES_CIMA = [
   { id: "vestido", nome: "Vestido", manga: 1, saia: 27 },
   { id: "vestidoLongo", nome: "Vestido longo", manga: 0, saia: 28 },
   { id: "jardineira", nome: "Jardineira", manga: 1, usaCor2: true, cobrePernas: true },
+  { id: "flanela", nome: "Camisa de flanela", manga: 2, usaCor2: true },
+  { id: "macacao", nome: "Macacão de trabalho", manga: 2, cobrePernas: true },
+  { id: "avental", nome: "Avental de roça", manga: 1, usaCor2: true },
 ];
 export const PARTES_BAIXO = [
   { id: "calca", nome: "Calça" },
@@ -103,6 +106,7 @@ export const CALCADOS = [
   { id: "botas", nome: "Botas" },
   { id: "galochas", nome: "Galochas" },
   { id: "sandalias", nome: "Sandálias" },
+  { id: "botaCano", nome: "Bota de cano alto" },
 ];
 export const ACESS_CABECA = [
   { id: "nenhum", nome: "Nada" },
@@ -113,6 +117,8 @@ export const ACESS_CABECA = [
   { id: "faixa", nome: "Faixa" },
   { id: "coroaFlores", nome: "Coroa de flores" },
   { id: "fones", nome: "Fones" },
+  { id: "chapeuVaqueiro", nome: "Chapéu de vaqueiro" },
+  { id: "lenco", nome: "Lenço de cabeça" },
 ];
 export const ACESS_ROSTO = [
   { id: "nenhum", nome: "Nada" },
@@ -131,6 +137,7 @@ export const ACESS_COSTAS = [
   { id: "mochila", nome: "Mochila de lona" },
   { id: "mochilaSolar", nome: "Mochila solar" },
   { id: "ecobag", nome: "Ecobag" },
+  { id: "cesto", nome: "Cesto de colheita" },
 ];
 export const ESTAMPAS = [
   { id: "liso", nome: "Lisa" },
@@ -141,6 +148,7 @@ export const ESTAMPAS = [
   { id: "floral", nome: "Floral" },
   { id: "camuflado", nome: "Camuflado" },
   { id: "degrade", nome: "Degradê" },
+  { id: "chita", nome: "Chita" },
 ];
 export const MATERIAIS = [
   { id: "algodao", nome: "Algodão orgânico", info: "Cultivado sem agrotóxicos e com menos água.", eco: true },
@@ -196,6 +204,18 @@ export const ESTILOS = [
       calcado: "tenis", corCalcado: "#24252a", cabeca: "nenhum", rostoAc: "oculos", pescoco: "nenhum", costas: "nenhum" },
   },
   {
+    id: "fazenda", nome: "Fazenda",
+    v: { cima: "flanela", corCima: "#d0443a", cor2Cima: "#24252a", estampaCima: "xadrez", materialCima: "algodao",
+      baixo: "calca", corBaixo: "#4a6fa5", estampaBaixo: "liso", materialBaixo: "jeans",
+      calcado: "botaCano", corCalcado: "#7a5236", cabeca: "chapeuVaqueiro", corCabeca: "#b07a3a", rostoAc: "nenhum", pescoco: "bandana", corPescoco: "#f1d04b", costas: "nenhum" },
+  },
+  {
+    id: "colheita", nome: "Colheita",
+    v: { cima: "avental", corCima: "#d0443a", cor2Cima: "#f2efe6", estampaCima: "chita", materialCima: "algodao",
+      baixo: "saiaLonga", corBaixo: "#3c6fcf", estampaBaixo: "liso", materialBaixo: "algodao",
+      calcado: "galochas", corCalcado: "#d9a93a", cabeca: "lenco", corCabeca: "#ee8fb3", rostoAc: "nenhum", pescoco: "nenhum", costas: "cesto" },
+  },
+  {
     id: "upcycling", nome: "Upcycling",
     v: { cima: "jaqueta", corCima: "#4a6fa5", cor2Cima: "#ee8a2e", estampaCima: "liso", materialCima: "retalhos",
       baixo: "saia", corBaixo: "#c0663f", estampaBaixo: "xadrez", materialBaixo: "retalhos",
@@ -239,6 +259,15 @@ export const VISUAIS = [
   { id: "inverno", nome: "Inverno", v: { pele: "#eab58c", corpo: "curvas", rosto: "oval", olhos: "pontos", detalhes: ["bochechas"], cabelo: "ondulado", corCabelo: "#3d2618",
     cima: "moletom", corCima: "#e8dcc0", cor2Cima: "#7a5236", estampaCima: "liso", materialCima: "algodao", baixo: "calca", corBaixo: "#3e4147", estampaBaixo: "liso", materialBaixo: "algodao",
     calcado: "botas", corCalcado: "#7a5236", cabeca: "gorro", corCabeca: "#d0443a", rostoAc: "nenhum", pescoco: "cachecol", corPescoco: "#5aa847", costas: "nenhum" } },
+  { id: "roca", nome: "Roça", v: { pele: "#a86a3c", corpo: "largo", rosto: "quadrado", olhos: "serenos", detalhes: ["bigode"], cabelo: "curto", corCabelo: "#3d2618",
+    cima: "flanela", corCima: "#3c6fcf", cor2Cima: "#24252a", estampaCima: "xadrez", materialCima: "algodao", baixo: "calca", corBaixo: "#4a6fa5", estampaBaixo: "liso", materialBaixo: "jeans",
+    calcado: "botaCano", corCalcado: "#7a5236", cabeca: "chapeuVaqueiro", corCabeca: "#b07a3a", rostoAc: "nenhum", pescoco: "bandana", corPescoco: "#d0443a", costas: "nenhum" } },
+  { id: "colheita", nome: "Colheita", v: { pele: "#d99f6c", corpo: "curvas", rosto: "redondo", olhos: "alegres", detalhes: ["bochechas", "sardas"], cabelo: "trancas", corCabelo: "#6b4226",
+    cima: "avental", corCima: "#d0443a", cor2Cima: "#f2efe6", estampaCima: "chita", materialCima: "algodao", baixo: "saiaLonga", corBaixo: "#3c6fcf", estampaBaixo: "liso", materialBaixo: "algodao",
+    calcado: "galochas", corCalcado: "#d9a93a", cabeca: "lenco", corCabeca: "#ee8fb3", rostoAc: "nenhum", pescoco: "nenhum", costas: "cesto" } },
+  { id: "curral", nome: "Curral", v: { pele: "#eab58c", corpo: "reto", rosto: "oval", olhos: "pontos", detalhes: [], cabelo: "rabo", corCabelo: "#b48a4a",
+    cima: "macacao", corCima: "#4d6b3a", cor2Cima: "#e8dcc0", estampaCima: "liso", materialCima: "canhamo", baixo: "calca", corBaixo: "#4d6b3a", estampaBaixo: "liso", materialBaixo: "canhamo",
+    calcado: "botas", corCalcado: "#24252a", cabeca: "chapeuPalha", corCabeca: "#d0443a", rostoAc: "nenhum", pescoco: "nenhum", costas: "nenhum" } },
   { id: "feira", nome: "Feira", v: { pele: "#c4844f", corpo: "reto", rosto: "quadrado", olhos: "alegres", detalhes: ["barba"], cabelo: "topete", corCabelo: "#a9a7a3",
     cima: "jardineira", corCima: "#4a6fa5", cor2Cima: "#d0443a", estampaCima: "liso", materialCima: "jeans", baixo: "calca", corBaixo: "#4a6fa5", estampaBaixo: "liso", materialBaixo: "jeans",
     calcado: "botas", corCalcado: "#7a5236", cabeca: "chapeuPalha", corCabeca: "#4d6b3a", rostoAc: "nenhum", pescoco: "nenhum", costas: "ecobag", corCostas: "#e8dcc0" } },
@@ -349,6 +378,17 @@ function corEstampa(est, base, c2, x, y) {
       return base;
     }
     case "degrade": return misturar(base, c2, Math.min(1, Math.max(0, (y - 2) / 12)));
+    case "chita": {
+      // estampa de chita: flores grandes e folhas sobre fundo colorido
+      const cx = Math.floor(x / 6), cy = Math.floor(y / 6);
+      const fx = cx * 6 + 2 + (cy % 2) * 3, fy = cy * 6 + 2;
+      const dx = Math.abs(x - fx), dy = Math.abs(y - fy);
+      if (dx === 0 && dy === 0) return AMARELO;
+      if (dx + dy === 1) return c2;
+      if (dx === 1 && dy === 1) return clarear(c2, 0.45);
+      if (x - fx === 2 && y - fy === 2) return rgb("#3f8a35");
+      return base;
+    }
     default: return base;
   }
 }
@@ -417,7 +457,8 @@ function paleta(ap) {
 }
 
 function tecidoCima(ap) {
-  return { cor: ap.corCima, cor2: ap.cor2Cima, estampa: ap.estampaCima, material: ap.materialCima, oy: 15 };
+  const estampa = ap.cima === "flanela" && ap.estampaCima === "liso" ? "xadrez" : ap.estampaCima;
+  return { cor: ap.corCima, cor2: ap.cor2Cima, estampa, material: ap.materialCima, oy: 15 };
 }
 function tecidoBaixo(ap) {
   return { cor: ap.corBaixo, cor2: misturar(ap.corBaixo, "#f2efe6", 0.6), estampa: ap.estampaBaixo, material: ap.materialBaixo, oy: 23 };
@@ -866,6 +907,16 @@ function desenharCalcadoFrente(pm, ap, P, pernas) {
     const x0 = lado === "e" ? 7 : 12;
     const xl = lado === "e" ? 8 : 12; // perna
     switch (ap.calcado) {
+      case "botaCano":
+        pm.rect(xl, y0 - 4, 4, 4, cor);
+        pm.rect(xl, y0 - 4, 4, 1, corL);
+        pm.set(xl + 3, y0 - 3, corS); pm.set(xl + 3, y0 - 2, corS); pm.set(xl + 3, y0 - 1, corS);
+        pm.set(xl + 1, y0 - 2, clarear(cor, 0.45)); // costura decorativa
+        pm.rect(x0, y0, 5, 1, cor);
+        pm.set(lado === "e" ? x0 : x0 + 4, y0, corS);
+        pm.rect(x0, y0 + 1, 5, 1, solaE);
+        pm.set(lado === "e" ? x0 + 4 : x0, y0 + 1, escurecer(solaE, 0.3)); // salto
+        break;
       case "botas":
         pm.rect(xl, y0 - 2, 4, 2, cor);
         pm.set(xl + 3, y0 - 2, corS);
@@ -978,8 +1029,44 @@ function desenharTroncoFrente(pm, ap, P, pz, costas) {
     }
     return;
   }
+  if (id === "avental") {
+    // camisa por baixo (cor 2) e avental (cor 1, com estampa) por cima
+    pintar(pm, corp, { cor: ap.cor2Cima, estampa: "liso", material: "algodao" });
+    const laco = escurecer(rgb(ap.corCima), 0.2);
+    if (costas) {
+      for (let x = 7; x <= 16; x++) if (corp.tem(x, 21 + u)) pm.set(x, 21 + u, laco);
+      pm.set(10, 20 + u, laco); pm.set(13, 20 + u, laco); pm.set(10, 22 + u, laco); pm.set(13, 22 + u, laco);
+      pm.rect(11, 21 + u, 2, 1, clarear(rgb(ap.corCima), 0.2));
+      return;
+    }
+    const av = M();
+    av.rect(9, 17 + u, 6, 6);
+    for (let y = 23; y <= 27; y++) av.linha(y, 8, 15);
+    av.add(9, 16 + u).add(14, 16 + u).add(10, 15 + u).add(13, 15 + u);
+    pintar(pm, av, { ...t, oy: 17 });
+    for (let x = 8; x <= 15; x++) pm.set(x, 27, x % 2 ? escurecer(rgb(ap.corCima), 0.25) : clarear(rgb(ap.corCima), 0.2));
+    pm.rect(10, 24, 4, 2, escurecer(rgb(ap.corCima), 0.15)); // bolso
+    return;
+  }
   pintar(pm, corp, t);
   const base = rgb(ap.corCima);
+  if (id === "flanela" && !costas) {
+    const gola = escurecer(base, 0.3);
+    pm.set(10, 15 + u, gola); pm.set(13, 15 + u, gola); pm.set(10, 16 + u, gola); pm.set(13, 16 + u, gola);
+    for (let y = 17; y <= 22; y += 2) pm.set(12, y + u, rgb("#f2efe6"));
+    pm.rect(8, 17 + u, 2, 1, escurecer(base, 0.3));
+    pm.rect(14, 17 + u, 2, 1, escurecer(base, 0.3));
+  }
+  if (id === "macacao") {
+    const s2 = escurecer(base, 0.25);
+    if (!costas) {
+      for (let y = 15; y <= 22; y++) pm.set(12, y + u, clarear(base, 0.3)); // zíper
+      pm.rect(8, 17 + u, 2, 2, s2);
+      pm.rect(14, 17 + u, 2, 2, s2);
+    }
+    for (let x = 5; x <= 18; x++) if (corp.tem(x, 21 + u)) pm.set(x, 21 + u, s2); // cinto
+    pm.set(12, 21 + u, rgb("#d9b84a"));
+  }
   if (id === "jaqueta" && !costas) {
     const dentro = M();
     for (let y = 16; y <= 22; y++) dentro.linha(y + u, 10, 13);
@@ -1055,7 +1142,7 @@ function desenharBracosFrente(pm, ap, P, pz, costas) {
     (manga > 0 ? mm : pele).add(lado < 0 ? (largo ? 5 : 6) : largo ? 18 : 17, 15 + u);
     if (largo) (manga > 0 ? mm : pele).add(lado < 0 ? 6 : 17, 15 + u);
     pintarPele(pm, pele, P);
-    pintar(pm, mm, cima.id === "colete" ? { cor: ap.cor2Cima, estampa: ap.estampaCima, material: "algodao", oy: 15 } : cima.id === "jardineira" ? { cor: ap.cor2Cima, estampa: "liso", material: "algodao" } : t);
+    pintar(pm, mm, cima.id === "colete" ? { cor: ap.cor2Cima, estampa: ap.estampaCima, material: "algodao", oy: 15 } : cima.id === "jardineira" || cima.id === "avental" ? { cor: ap.cor2Cima, estampa: "liso", material: "algodao" } : t);
     if (manga === 2) {
       const pun = escurecer(rgb(ap.corCima), cima.id === "tech" ? 0 : 0.2);
       pm.set(x0, y0 + fimManga, cima.id === "tech" ? rgb(ap.cor2Cima) : pun);
@@ -1134,6 +1221,29 @@ function acessCabecaFrente(pm, ap, P, u, costas, vista) {
       }
       break;
     }
+    case "chapeuVaqueiro": {
+      const abaY = 5 + u;
+      if (lado) {
+        pm.rect(5, abaY, 15, 1, cor);
+        pm.set(5, abaY - 1, cor); pm.set(19, abaY - 1, cor);
+        m.fn((x, y) => y >= 1 + u && y < abaY && x >= 8 && x <= 15 && !(y === 1 + u && (x === 8 || x === 15)));
+      } else {
+        pm.rect(3, abaY, 18, 1, cor);
+        pm.set(2, abaY - 1, cor); pm.set(21, abaY - 1, cor); pm.set(3, abaY - 1, cl); pm.set(20, abaY - 1, cs);
+        pm.rect(4, abaY + 1, 16, 1, [60, 40, 20, 70]);
+        m.fn((x, y) => y >= 1 + u && y < abaY && x >= 7 && x <= 16 && !(y === 1 + u && (x === 7 || x === 16 || x === 11 || x === 12)));
+      }
+      pintar(pm, m, { cor: ap.corCabeca, estampa: "liso", material: "canhamo" });
+      for (let x = 0; x < LARG; x++) if (m.tem(x, abaY - 1)) pm.set(x, abaY - 1, escurecer(cor, 0.45)); // fita
+      if (!lado && !costas) pm.set(12, abaY - 1, rgb("#d9b84a"));
+      break;
+    }
+    case "lenco":
+      m.fn((x, y) => y >= 2 + u && y <= (lado ? 6 : 5) + u && ((x + 0.5 - 12) / 6.2) ** 2 + ((y + 0.5 - (6.2 + u)) / 4.8) ** 2 <= 1);
+      if (costas) { m.rect(11, 6 + u, 2, 2); m.add(10, 8 + u).add(13, 8 + u); }
+      else if (lado) { m.rect(7, 6 + u, 2, 2); m.add(6, 8 + u); }
+      pintar(pm, m, { cor: ap.corCabeca, cor2: "#f2efe6", estampa: "bolinhas", material: "algodao", oy: 0 });
+      break;
     case "fones": {
       const f = rgb("#2e2a33"), fl = rgb("#5a5466");
       if (lado) {
@@ -1263,6 +1373,36 @@ function acessCostas(pm, ap, u, vista, fase) {
     void bolsa;
     return;
   }
+  if (c === "cesto") {
+    const palha = rgb("#c8a060"), ps = escurecer(palha, 0.3), pl = clarear(palha, 0.25);
+    const trama = (m) => { for (const [x, y] of m.pontos()) pm.set(x, y, (x + y) % 2 ? palha : (y % 2 ? ps : pl)); };
+    const verdura = (x, y) => {
+      pm.set(x, y, rgb("#5aa847")); pm.set(x + 1, y - 1, rgb("#73c650")); pm.set(x + 2, y, rgb("#3f8a35"));
+      pm.set(x + 4, y, rgb("#ee8a2e")); pm.set(x + 4, y - 1, rgb("#5aa847")); pm.set(x + 6, y, rgb("#d0443a"));
+    };
+    if (vista === "frente") {
+      if (fase !== "frente") return;
+      for (let y = 15; y <= 20; y++) { pm.set(8, y + u, rgb("#8a6a40")); pm.set(15, y + u, rgb("#8a6a40")); }
+      return;
+    }
+    if (vista === "costas") {
+      if (fase !== "frente") return;
+      const m = M();
+      for (let y = 14; y <= 23; y++) m.linha(y + u, y > 21 ? 9 : 8, y > 21 ? 14 : 15);
+      verdura(9, 13 + u);
+      trama(m);
+      pm.rect(8, 14 + u, 8, 1, ps);
+      return;
+    }
+    if (fase === "tras") {
+      const m = M();
+      for (let y = 14; y <= 23; y++) m.linha(y + u, 5, 9);
+      trama(m);
+      pm.set(6, 13 + u, rgb("#5aa847")); pm.set(7, 12 + u, rgb("#73c650")); pm.set(8, 13 + u, rgb("#ee8a2e"));
+    } else for (let y = 15; y <= 20; y++) pm.set(11, y + u, rgb("#8a6a40"));
+    void cl;
+    return;
+  }
   const solar = c === "mochilaSolar";
   if (vista === "frente") {
     if (fase !== "frente") return;
@@ -1387,7 +1527,7 @@ function desenharLado(ap, quadro) {
       const naManga = manga === 2 ? k <= 4 : manga === 1 ? k <= 1 : false;
       (naManga ? mm : pele).add(x, y).add(x + 1, y);
     }
-    const tm = cima.id === "colete" || cima.id === "jardineira" ? { cor: ap.cor2Cima, estampa: "liso", material: "algodao" } : t;
+    const tm = cima.id === "colete" || cima.id === "jardineira" || cima.id === "avental" ? { cor: ap.cor2Cima, estampa: "liso", material: "algodao" } : t;
     if (escuro) {
       for (const [x, y] of pele.pontos()) pm.set(x, y, P.peleS);
       for (const [x, y] of mm.pontos()) pm.set(x, y, escurecer(rgb(ap.corCima), 0.3));
@@ -1431,6 +1571,10 @@ function desenharLado(ap, quadro) {
     const x0 = p.x, y0 = p.pe;
     const f = p.longe ? (c) => escurecer(c, 0.22) : (c) => c;
     switch (ap.calcado) {
+      case "botaCano":
+        pm.rect(x0, y0 - 4, 3, 4, f(cor)); pm.rect(x0, y0 - 4, 3, 1, f(cl)); pm.set(x0 + 1, y0 - 2, f(clarear(cor, 0.45)));
+        pm.rect(x0, y0, 5, 1, f(cor)); pm.set(x0 + 4, y0, f(cl)); pm.rect(x0, y0 + 1, 5, 1, f(rgb("#4a3a32"))); pm.set(x0, y0 + 1, f(rgb("#2a1e18")));
+        break;
       case "botas":
         pm.rect(x0, y0 - 2, 3, 2, f(cor)); pm.rect(x0, y0, 5, 1, f(cor)); pm.set(x0 + 4, y0, f(cl)); pm.rect(x0, y0 + 1, 5, 1, f(rgb("#4a3a32")));
         break;
@@ -1482,6 +1626,17 @@ function desenharLado(ap, quadro) {
     pintar(pm, capuz, { cor: escurecer(base, 0.08), estampa: "liso" });
     pm.set(14, 17 + u, rgb(ap.cor2Cima));
   }
+  if (cima.id === "avental") {
+    pintar(pm, corp, { cor: ap.cor2Cima, estampa: "liso", material: "algodao" });
+    const av = M();
+    av.rect(13, 17 + u, 2, 6);
+    for (let y = 23; y <= 27; y++) av.linha(y, 13, 15);
+    av.add(13, 16 + u).add(12, 15 + u);
+    pintar(pm, av, { ...t, oy: 17 });
+    pm.set(9, 21 + u, escurecer(rgb(ap.corCima), 0.2));
+    pm.set(8, 22 + u, escurecer(rgb(ap.corCima), 0.2));
+  }
+  if (cima.id === "macacao") { pm.rect(9, 21 + u, 6, 1, escurecer(base, 0.25)); }
   if (cima.id === "tech") for (let y = 16; y <= 22; y++) pm.set(13, y + u, y % 2 ? rgb(ap.cor2Cima) : clarear(rgb(ap.cor2Cima), 0.35));
   if (cima.id === "jaqueta") { for (let y = 16; y <= 22; y++) pm.set(14, y + u, rgb(ap.cor2Cima)); }
   if (cima.id === "regata" || cima.id === "vestidoLongo") { pm.set(13, 15 + u, P.pele); pm.set(14, 16 + u, P.pele); }
