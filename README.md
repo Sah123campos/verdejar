@@ -4,7 +4,7 @@ Jogo de fazenda sustentável para o navegador, feito primeiro para celular (em p
 
 > "Cultivar o futuro começa com o cuidado com a terra, a água e as pessoas."
 
-**Jogar:** https://sah123campos.github.io/raizes-do-sertao/ (ou o endereço do GitHub Pages deste repositório)
+**Jogar:** https://sah123campos.github.io/verdejar/
 
 ## O que tem nesta versão
 
