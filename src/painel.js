@@ -129,6 +129,8 @@ export class UI {
       const def = FERRAMENTAS.find((x) => x.id === b.dataset.f);
       b.hidden = def.nivel && n < def.nivel && !(def.id === "gotejo" && E.qtd(e, "kitGotejo"));
     }
+    // número de atalho (teclas 1 a 9 no computador)
+    [...document.querySelectorAll(".ferr")].filter((b) => !b.hidden).forEach((b, i) => { b.dataset.num = i + 1; });
     this.atualizarDica();
   }
 
@@ -954,7 +956,7 @@ export class UI {
           el("li", {}, "Toque em construções, na cisterna, na banca e no quadro de pedidos para abrir os painéis."),
           el("li", {}, "Toque numa planta com a Mão para ver água, fertilidade e tempo até a colheita."),
           el("li", {}, "Ícones sobre as plantas: estrela amarela = pronta; gota = com sede; gota com ponto vermelho = murchando."),
-          el("li", {}, "No computador: WASD/setas andam, E usa a ferramenta à frente, Esc pausa."),
+          el("li", {}, "No computador: as teclas 1 a 7 escolhem as ferramentas da barra, WASD ou setas andam, E usa a ferramenta à frente, Esc abre o menu."),
           el("li", {}, "O jogo salva sozinho. Ficar sem jogar não estraga nada: o tempo só passa com o jogo aberto.")));
       } else {
         const g = GUIA.find((x) => x.id === topico);

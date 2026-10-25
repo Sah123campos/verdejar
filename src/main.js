@@ -202,6 +202,11 @@ function laco(agora) {
         if (a === "pausa") { if (ui.folhaAtual) ui.fecharFolha(); else ui.abrir({ tipo: "menu" }); }
         if (a === "telacheia") telaCheia.alternar();
         if (a === "interagir" && ui.dialogo) ui.avancarDialogo();
+        if (a.startsWith("ferr") && !ui.folhaAtual && !ui.dialogo) {
+          const visiveis = [...document.querySelectorAll(".ferr")].filter((b) => !b.hidden);
+          const b = visiveis[Number(a.slice(4)) - 1];
+          if (b) ui.escolherFerramenta(b.dataset.f);
+        }
       }
       ui.atualizarHud(false);
       tSalvar += dt;

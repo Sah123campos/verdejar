@@ -26,6 +26,7 @@ export class Entrada {
         if (k === "escape" || k === "p") this.disparar("pausa");
         if (k === "j") this.disparar("diario");
         if (k === "f") this.disparar("telacheia");
+        if (/^[1-9]$/.test(k)) this.disparar("ferr" + k); // 1 a 9: ferramentas da barra
       }
       this.teclas.add(k);
       this.mudarDispositivo("teclado");

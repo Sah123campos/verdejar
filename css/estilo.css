@@ -602,3 +602,6 @@ canvas.ic.grande { width: 30px; height: 30px; }
 .modo-toque .btn-usar { display: flex; }
 .btn-usar:active { transform: scale(0.92); }
 @media (orientation: landscape) and (max-height: 480px) { .btn-usar { bottom: calc(76px + var(--seg-baixo)); width: 56px; height: 56px; } }
+
+/* Número do atalho de teclado em cada ferramenta (só no computador) */
+html:not(.modo-toque) .ferr[data-num]::before { content: attr(data-num); position: absolute; top: 2px; left: 4px; font-size: 10px; font-weight: 700; color: var(--tinta2); }
