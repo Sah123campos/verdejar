@@ -124,15 +124,19 @@ export function avancar(e, horas, ctx) {
     if (novoDia) eventos.push("novoDia");
     if (estacao(e) !== estAntes) eventos.push(estacao(e) === "seca" ? "comecouSeca" : "comecouChuva");
     const chove = chovendo(e);
-    if (chove && !chuvaAntes) eventos.push("comecouChuva_dia");
+    if (chove && !chuvaAntes) {
+      eventos.push("comecouChuva_dia");
+      e.cacimba = { dia: dia(e), usos: 0 }; // a chuva enche a cacimba de novo
+    }
     passoSolo(e, dh, chove, eventos);
     passoConstrucoes(e, dh, chove, eventos, ctx);
     if (chove) {
-      const capta = (e.calha ? 9 : 4) * dh;
+      // cada chuva enche a cisterna até o máximo: em 2 horas, ou em 1 hora com calhas
+      const capta = e.cisterna.cap * (e.calha ? 1 : 0.5) * dh;
       const antes = e.cisterna.agua;
       e.cisterna.agua = Math.min(e.cisterna.cap, e.cisterna.agua + capta);
       e.stats.aguaChuva += e.cisterna.agua - antes;
-      if (e.mandala.etapa >= 4) e.mandala.agua = Math.min(e.mandala.cap, e.mandala.agua + 2 * dh);
+      if (e.mandala.etapa >= 4) e.mandala.agua = Math.min(e.mandala.cap, e.mandala.agua + e.mandala.cap * 0.5 * dh);
     }
   }
   return eventos;

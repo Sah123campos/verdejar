@@ -505,7 +505,7 @@ export function instalarCalha(e) {
   e.moedas -= 90;
   e.calha = true;
   conta(e, "calha");
-  return { ok: true, efeito: "instalar", msg: "Calhas no telhado: a cisterna capta o dobro de água da chuva.", xp: 10 };
+  return { ok: true, efeito: "instalar", msg: "Calhas no telhado: na chuva, a cisterna enche duas vezes mais rápido.", xp: 10 };
 }
 export function melhorarRegador(e) {
   if (e.regador.max >= 12) return { ok: false, msg: "O regador já está no máximo." };

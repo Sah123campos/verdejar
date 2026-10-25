@@ -316,7 +316,7 @@ export class UI {
       aviso(r === null ? "Voltou a época de chuvas!" : `Voltaram as chuvas! ${Math.round(r * 100)}% das plantas atravessaram a estiagem.`, { dur: 4500 });
       if (r !== null && r >= 0.8) this.conquista("sertaoResistente");
     }
-    if (so.has("comecouChuva_dia")) aviso("Chuva! A cisterna está enchendo.", { dur: 2500 });
+    if (so.has("comecouChuva_dia")) aviso("Chuva! A cisterna vai encher e a cacimba já tem água de novo.", { dur: 3000 });
     if (so.has("compostoPronto")) { aviso("O composto está maduro! Colete na composteira.", { dur: 3500 }); this.audio.efeito("certo"); }
     if (so.has("murchou") && performance.now() - (this.ultMurcha || 0) > 20000) { this.ultMurcha = performance.now(); aviso("Uma planta murchou de sede. Regue logo!", { dur: 3000 }); }
     if (so.has("secou")) aviso("Uma planta secou. Retire com a mão ou a enxada: vira palha.", { dur: 3500 });
@@ -544,11 +544,11 @@ export class UI {
         barra((e.cisterna.agua / e.cisterna.cap) * 100, `Água guardada: ${Math.round(e.cisterna.agua)} de ${e.cisterna.cap} L`, "agua"),
         el("p", {}, `Regador: ${e.regador.carga}/${e.regador.max}. Cada rega usa 5 L (encher o regador todo: ${e.regador.max * 5} L).`),
         this.btn("Encher o regador", () => this.acao(Ac.encherRegador(e)), { classe: "btn-principal", icone: "regador" }),
-        e.calha ? el("p", { class: "nota ok" }, "Calhas instaladas: o telhado capta mais água da chuva.") :
+        e.calha ? el("p", { class: "nota ok" }, "Calhas instaladas: a cisterna enche duas vezes mais rápido quando chove.") :
           this.btn("Instalar calhas no telhado (90)", () => this.acao(Ac.instalarCalha(e)), { icone: "agua", desativado: E.nivel(e) < 3, rotulo: "Instalar calhas por 90 moedas" }),
         E.nivel(e) < 3 && !e.calha ? el("small", {}, "Calhas: disponíveis no nível 3.") : null,
         el("p", { class: "nota" }, `Água da chuva captada até agora: ${Math.round(e.stats.aguaChuva)} L. Água usada: ${Math.round(e.stats.aguaUsada)} L.`),
-        el("p", { class: "nota" }, "Na estação das chuvas, guarde o máximo que puder: na estiagem não chove."),
+        el("p", { class: "nota" }, "Cada chuva enche a cisterna e a cacimba. Na estiagem não chove: guarde a água e gaste com cuidado."),
         el("h3", {}, "Ficou sem água?"),
         el("p", {}, "A cacimba perto da estrada enche o regador de graça 3 vezes por dia. Em emergência, chame o carro-pipa."),
         this.btn("Chamar carro-pipa: +100 L (30 moedas)", () => this.acao(Ac.chamarCarroPipa(e)), { icone: "moeda", desativado: e.moedas < 30 || e.cisterna.agua >= e.cisterna.cap }),
