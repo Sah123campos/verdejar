@@ -235,13 +235,23 @@ export class Fazenda {
       this.ui.infoTile(tile, tx, ty);
       return;
     }
+    if (this.ferramenta === "mao" && tile && !tile.c && !tile.morta && !E.arvoreEm(tx, ty)) {
+      const ferr = tile.t === "preparada" ? "semente" : "enxada";
+      this.ui.sugerirFerramenta(ferr, tile.t === "preparada" ? "Este canteiro está pronto para plantar." : tile.t === "mato" ? "Aqui tem mato: limpe com a enxada." : "Prepare esta terra com a enxada.");
+      return;
+    }
     if (!tile && !E.arvoreEm(tx, ty)) {
       this.marca = { x: w.x, y: w.y, t: 0.5 };
       this.irPara(w.x, w.y);
       return;
     }
     const pre = this.preChecar(tile, tx, ty);
-    if (pre) { this.ui.aviso(pre.msg); if (pre.abrir) this.ui.abrir(pre.abrir); this.audio.efeito("errado"); return; }
+    if (pre) {
+      this.audio.efeito("errado");
+      if (pre.ferr) this.ui.sugerirFerramenta(pre.ferr, pre.msg);
+      else { this.ui.aviso(pre.msg); if (pre.abrir) this.ui.abrir(pre.abrir); }
+      return;
+    }
     if (this.fila.some((a) => a.x === tx && a.y === ty)) return;
     this.fila.push({ x: tx, y: ty, ferr: this.ferramenta, op: { cultura: this.cultura, insumo: this.insumo }, rota: null });
     this.audio.efeito("toque");
@@ -251,9 +261,15 @@ export class Fazenda {
   preChecar(t, x, y) {
     const e = this.e;
     if (E.arvoreEm(x, y)) return null;
+    if (t && !t.morta && !(t.mandala && t.parte && t.parte !== "canteiro")) {
+      if (this.ferramenta === "semente" && !t.c && t.t !== "preparada") return { msg: t.t === "mato" ? "Primeiro limpe o mato com a enxada." : "Primeiro prepare a terra com a enxada.", ferr: "enxada" };
+      if (this.ferramenta === "enxada" && t.t === "preparada" && !t.c) return { msg: "Esta terra já está preparada. Agora é plantar!", ferr: "semente" };
+      if (this.ferramenta === "enxada" && t.c && S.prontaParaColher(t)) return { msg: "Esta planta está pronta: colha com a Mão.", ferr: "mao" };
+      if ((this.ferramenta === "semente" || this.ferramenta === "enxada") && t.c && !S.prontaParaColher(t)) return { msg: "Já tem planta aqui. Ela precisa de água para crescer.", ferr: "regador" };
+    }
     switch (this.ferramenta) {
       case "semente": if (!E.qtd(e, "sem_" + this.cultura)) return { msg: `Sem sementes de ${CULTURAS[this.cultura].nome.toLowerCase()}.`, abrir: { tipo: "sementes" } }; break;
-      case "regador": if (e.regador.carga <= 0) return { msg: "Regador vazio: toque na cisterna, ao lado da casa, para encher." }; break;
+      case "regador": if (e.regador.carga <= 0) return { msg: "Regador vazio: toque na cisterna (ao lado da casa) ou na cacimba (perto da estrada, de graça)." }; break;
       case "palha": if (!E.qtd(e, "palha")) return { msg: "Sem palha. Limpe mato ou retire plantas secas." }; break;
       case "gotejo": if (!E.qtd(e, "kitGotejo")) return { msg: "Sem kit de gotejamento. Compre na loja.", abrir: { tipo: "loja" } }; break;
       case "adubo": if (!E.qtd(e, this.insumo)) return { msg: `Sem ${this.insumo === "composto" ? "composto" : this.insumo === "humus" ? "húmus" : "adubo"}.`, abrir: { tipo: "insumos" } }; break;
@@ -571,6 +587,9 @@ export class Fazenda {
     const b = FIXOS.banca;
     const sb = A.bancaSprite();
     lista.push({ y: (b.y + b.h) * T, d: () => this.tela.ctx.drawImage(sb, b.x * T - 1 - cx, (b.y + b.h) * T - sb.height - cy) });
+    const ca = FIXOS.cacimba;
+    const sca = A.cacimbaSprite();
+    lista.push({ y: (ca.y + 1) * T, d: () => this.tela.ctx.drawImage(sca, ca.x * T - 2 - cx, (ca.y + 1) * T - sca.height - cy) });
     const q = FIXOS.quadro;
     const sq = A.quadroSprite();
     lista.push({ y: (q.y + 1) * T, d: () => this.tela.ctx.drawImage(sq, q.x * T - 1 - cx, (q.y + 1) * T - sq.height - cy) });

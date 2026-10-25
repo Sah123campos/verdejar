@@ -206,7 +206,10 @@ export class UI {
         if (ok && ok() && tiles.length < 6) tiles.push([x, y]);
       }
       this.faz.destaque = { ...(this.faz.destaque || {}), tiles };
-      if (foco.i === 2 && this.e.regador.carga === 0) this.faz.destaque.ponto = { x: (E.FIXOS.cisterna.x + 1) * E.T, y: E.FIXOS.cisterna.y * E.T - 20 };
+      if (foco.i === 2 && this.e.regador.carga === 0) {
+        const fonte = this.e.cisterna.agua >= 5 ? E.FIXOS.cisterna : E.FIXOS.cacimba;
+        this.faz.destaque.ponto = { x: (fonte.x + fonte.w / 2) * E.T, y: fonte.y * E.T - 20 };
+      }
     }
     if (foco.p.alvoMandala && this.e.mandala.local) {
       const L = LOCAIS_MANDALA[this.e.mandala.local];
@@ -299,7 +302,8 @@ export class UI {
     const so = new Set(lista);
     if (so.has("novoDia")) {
       if (e.pedidos.length < 3) Ac.gerarPedidos(e);
-      if (Ac.diaDeFeira(e)) aviso("Hoje é dia de feira! Os produtos vendem 40% mais caro na banca.", { dur: 4000 });
+      if (e.cisterna.agua < 40) aviso("A cisterna está quase vazia. Use a cacimba perto da estrada, cubra o solo com palha e plante culturas que pedem pouca água.", { dur: 5000 });
+      else if (Ac.diaDeFeira(e)) aviso("Hoje é dia de feira! Os produtos vendem 40% mais caro na banca.", { dur: 4000 });
       const ate = S.diasAteEstiagem(e);
       if (S.estacao(e) === "chuva" && ate === 2) aviso("Previsão: a estiagem começa em 2 dias. Guarde água e cubra o solo!", { dur: 4500 });
       this.aoSalvar();
@@ -523,16 +527,29 @@ export class UI {
   // ----- Fixos da propriedade
   abrirFixo(f) {
     const e = this.e;
-    if (f === "cisterna") {
+    if (f === "cacimba") {
+      this.folha("Cacimba comunitária", () => {
+        const usos = e.cacimba?.dia === E.dia(e) ? e.cacimba.usos : 0;
+        return [
+          el("p", {}, "Água de graça para a vizinhança, mas é pouca: dá para encher o regador 3 vezes por dia."),
+          el("p", { class: "nota" }, `Hoje: ${Ac.USOS_CACIMBA - usos} de ${Ac.USOS_CACIMBA} enchidas restantes. Regador: ${e.regador.carga}/${e.regador.max}.`),
+          this.btn("Encher o regador aqui", () => this.acao(Ac.encherNaCacimba(e)), { classe: "btn-principal", icone: "regador", desativado: usos >= Ac.USOS_CACIMBA }),
+          el("p", { class: "nota" }, "Para regar muito, guarde água da chuva na cisterna e use gotejamento e palha para gastar menos."),
+        ];
+      });
+    } else if (f === "cisterna") {
       this.folha("Cisterna", () => [
         barra((e.cisterna.agua / e.cisterna.cap) * 100, `Água guardada: ${Math.round(e.cisterna.agua)} de ${e.cisterna.cap} L`, "agua"),
-        el("p", {}, `Regador: ${e.regador.carga}/${e.regador.max}. Cada rega usa 10 L.`),
+        el("p", {}, `Regador: ${e.regador.carga}/${e.regador.max}. Cada rega usa 5 L (encher o regador todo: ${e.regador.max * 5} L).`),
         this.btn("Encher o regador", () => this.acao(Ac.encherRegador(e)), { classe: "btn-principal", icone: "regador" }),
         e.calha ? el("p", { class: "nota ok" }, "Calhas instaladas: o telhado capta mais água da chuva.") :
           this.btn("Instalar calhas no telhado (90)", () => this.acao(Ac.instalarCalha(e)), { icone: "agua", desativado: E.nivel(e) < 3, rotulo: "Instalar calhas por 90 moedas" }),
         E.nivel(e) < 3 && !e.calha ? el("small", {}, "Calhas: disponíveis no nível 3.") : null,
         el("p", { class: "nota" }, `Água da chuva captada até agora: ${Math.round(e.stats.aguaChuva)} L. Água usada: ${Math.round(e.stats.aguaUsada)} L.`),
         el("p", { class: "nota" }, "Na estação das chuvas, guarde o máximo que puder: na estiagem não chove."),
+        el("h3", {}, "Ficou sem água?"),
+        el("p", {}, "A cacimba perto da estrada enche o regador de graça 3 vezes por dia. Em emergência, chame o carro-pipa."),
+        this.btn("Chamar carro-pipa: +100 L (30 moedas)", () => this.acao(Ac.chamarCarroPipa(e)), { icone: "moeda", desativado: e.moedas < 30 || e.cisterna.agua >= e.cisterna.cap }),
       ]);
     } else if (f === "banca") {
       this.folha("Banca de venda", () => {
@@ -982,6 +999,11 @@ export class UI {
 
   aviso(t) {
     aviso(t, { dur: 2800 });
+  }
+  // Mensagem com atalho para trocar para a ferramenta certa.
+  sugerirFerramenta(ferr, msg) {
+    const nomes = { mao: "Mão", enxada: "Enxada", semente: "Plantar", regador: "Regar", adubo: "Adubar", palha: "Cobrir", gotejo: "Gotejo" };
+    aviso(msg, { dur: 4500, acao: { rotulo: `Usar ${nomes[ferr]}`, fn: () => this.escolherFerramenta(ferr) } });
   }
 }
 

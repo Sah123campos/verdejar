@@ -90,6 +90,10 @@ for (const seg of document.querySelectorAll("#opcoes .segmentado")) {
 }
 for (const b of document.querySelectorAll(".fechar-modal")) b.addEventListener("click", () => { audio.efeito("toque"); b.closest(".modal").hidden = true; });
 
+// Botão "Usar": aplica a ferramenta no canteiro à frente (para quem anda arrastando o dedo)
+$("btn-usar").addEventListener("pointerdown", (ev) => { ev.preventDefault(); ev.stopPropagation(); if (estado === "jogando" && !faz.pausado) faz.interagirFrente(); });
+$("btn-usar").addEventListener("contextmenu", (ev) => ev.preventDefault());
+
 // ícones fixos do HUD
 for (const c of document.querySelectorAll("canvas[data-ic]")) {
   const g = c.getContext("2d");
@@ -148,9 +152,10 @@ function comecar(est) {
     est.tutorialVisto = true;
     setTimeout(() => ui.falar([
       { quem: "zefa", texto: "Bem-vindo à roça, {nome}! Eu sou a Vó Zefa." },
-      { quem: "zefa", texto: "Embaixo fica a barra de ferramentas. Escolha uma e toque no chão: você vai até lá e faz o serviço." },
-      { quem: "zefa", texto: "Em cima, suas moedas, seu nível e a água da cisterna. Água aqui é contada!" },
-      { quem: "zefa", texto: "Comece pela enxada: prepare a terra limpinha perto da cerca. O quadrado amarelo mostra onde." },
+      { quem: "zefa", texto: "É assim: escolha uma ferramenta na barra de baixo e toque no quadrado do chão. Você vai andando até lá e faz o serviço sozinho." },
+      { quem: "zefa", texto: "Para plantar: Enxada na terra, depois Plantar, depois Regar. Quando aparecer uma estrela amarela, colha com a Mão." },
+      { quem: "zefa", texto: "Água aqui é contada! O regador enche na cisterna, ao lado da casa. Se ela secar, a cacimba perto da estrada dá água de graça um pouco por dia, e a chuva enche a cisterna." },
+      { quem: "zefa", texto: "Comece pela Enxada nos quadrados amarelos, perto da cerca." },
     ], () => salvar(true)), 600);
   }
 }

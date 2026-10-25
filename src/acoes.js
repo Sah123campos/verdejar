@@ -4,7 +4,7 @@ import { CULTURAS, ITENS, CONSTRUCOES, LOTES, LOCAIS_MANDALA, nivelDe, nomeItem,
 import * as E from "./estado.js";
 import { prontaParaColher, estacao, massaPilha, cnPilha, CICLO_PEIXE } from "./simulacao.js";
 
-const L_POR_CARGA = 10;
+const L_POR_CARGA = 5; // litros por rega
 
 export function conta(e, chave, n = 1) {
   e.missoes.passos[chave] = (e.missoes.passos[chave] || 0) + n;
@@ -120,7 +120,7 @@ export function plantar(e, t, cultura) {
 }
 
 function regar(e, t) {
-  if (e.regador.carga <= 0) return { ok: false, msg: "O regador está vazio. Toque na cisterna para encher.", alvoCisterna: true };
+  if (e.regador.carga <= 0) return { ok: false, msg: "O regador está vazio. Toque na cisterna (ao lado da casa) ou na cacimba (perto da estrada) para encher.", alvoCisterna: true };
   e.regador.carga--;
   t.u = 100;
   if (t.murcha) t.sec = Math.min(t.sec, 1);
@@ -196,11 +196,32 @@ export function encherRegador(e) {
   const falta = e.regador.max - e.regador.carga;
   if (falta <= 0) return { ok: false, msg: "O regador já está cheio." };
   const podem = Math.min(falta, Math.floor(e.cisterna.agua / L_POR_CARGA));
-  if (podem <= 0) return { ok: false, msg: "A cisterna está vazia! Espere a chuva ou economize água." };
+  if (podem <= 0) return { ok: false, msg: "A cisterna está vazia! Encha o regador de graça na cacimba (perto da estrada), espere a chuva ou chame o carro-pipa." };
   e.cisterna.agua -= podem * L_POR_CARGA;
   e.stats.aguaUsada += podem * L_POR_CARGA;
   e.regador.carga += podem;
   return { ok: true, efeito: "regar", msg: `Regador cheio (${e.regador.carga}/${e.regador.max}). Cisterna: ${Math.round(e.cisterna.agua)} L.` };
+}
+
+// Cacimba comunitária: água de graça, mas pouca (3 enchidas de regador por dia).
+export const USOS_CACIMBA = 3;
+export function encherNaCacimba(e) {
+  const d = E.dia(e);
+  if (!e.cacimba) e.cacimba = { dia: 0, usos: 0 };
+  if (e.cacimba.dia !== d) e.cacimba = { dia: d, usos: 0 };
+  if (e.cacimba.usos >= USOS_CACIMBA) return { ok: false, msg: "A cacimba já deu toda a água de hoje. Volte amanhã ou use a cisterna." };
+  if (e.regador.carga >= e.regador.max) return { ok: false, msg: "O regador já está cheio." };
+  e.cacimba.usos++;
+  e.regador.carga = e.regador.max;
+  return { ok: true, efeito: "regar", msg: `Regador cheio na cacimba (${USOS_CACIMBA - e.cacimba.usos} de ${USOS_CACIMBA} por hoje).` };
+}
+export function chamarCarroPipa(e) {
+  if (e.moedas < 30) return { ok: false, msg: "O carro-pipa custa 30 moedas." };
+  if (e.cisterna.agua >= e.cisterna.cap) return { ok: false, msg: "A cisterna já está cheia." };
+  e.moedas -= 30;
+  e.cisterna.agua = Math.min(e.cisterna.cap, e.cisterna.agua + 100);
+  conta(e, "carroPipa");
+  return { ok: true, efeito: "regar", msg: "O carro-pipa deixou 100 L na cisterna." };
 }
 
 // ------------------------------------------------------------ Comércio

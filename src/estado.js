@@ -26,6 +26,7 @@ export const FIXOS = {
   cisterna: { x: 21, y: 5, w: 2, h: 2 },
   banca: { x: 6, y: 6, w: 3, h: 2 },
   quadro: { x: 10, y: 7, w: 1, h: 1 },
+  cacimba: { x: 5, y: 10, w: 1, h: 1 },
 };
 
 export function tipoBase(x, y) {
@@ -94,7 +95,8 @@ export function novoEstado() {
     chuva: 0, // horas restantes de chuva
     inv: { sem_coentro: 6, sem_alface: 3, sem_feijao: 4, palha: 2, folhas: 0, galhos: 0 },
     regador: { carga: 6, max: 6, tanque: 0 },
-    cisterna: { agua: 220, cap: 400 },
+    cisterna: { agua: 300, cap: 400 },
+    cacimba: { dia: 0, usos: 0 },
     calha: false,
     lotes: [0],
     tiles,

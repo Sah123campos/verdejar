@@ -24,6 +24,7 @@ export function diasAteChuvas(e) {
 // Chuva do dia: na estação chuvosa, a maioria dos dias tem uma pancada de chuva.
 export function chuvaDoDia(e, d = dia(e)) {
   if (estacao(e, d) !== "chuva" || d === 1) return null;
+  if (d === 2) return { ini: 11, fim: 16 }; // a primeira chuva vem cedo, para ninguém ficar sem água no começo
   if (hash(d, 3, 99) > 0.7) return null;
   const ini = 9 + Math.floor(hash(d, 1, 99) * 9);
   const dur = 2 + Math.floor(hash(d, 2, 99) * 5);

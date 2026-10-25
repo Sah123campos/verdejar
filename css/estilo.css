@@ -596,3 +596,9 @@ canvas.ic.grande { width: 30px; height: 30px; }
   #hud .hud-linha2 { top: calc(48px + var(--seg-top)); }
   .btn-redondo { width: 58px; height: 54px; }
 }
+
+/* Botão Usar (só no toque) */
+.btn-usar { position: absolute; left: calc(10px + var(--seg-esq)); bottom: calc(100px + var(--seg-baixo)); width: 64px; height: 64px; border-radius: 50%; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1px; background: var(--sol); border: 3px solid var(--borda); box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.18), 0 3px 0 rgba(0, 0, 0, 0.3); font-size: 12px; font-weight: 700; color: var(--tinta); pointer-events: auto; }
+.modo-toque .btn-usar { display: flex; }
+.btn-usar:active { transform: scale(0.92); }
+@media (orientation: landscape) and (max-height: 480px) { .btn-usar { bottom: calc(76px + var(--seg-baixo)); width: 56px; height: 56px; } }

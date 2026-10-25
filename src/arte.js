@@ -379,6 +379,16 @@ export function bancaSprite() {
     for (let i = 0; i < 6; i++) pm.elipse(6 + i * 7.5, 24, 3, 2.4, C(cores[i]));
   }));
 }
+export function cacimbaSprite() {
+  return guardado("cacimba", () => spr(20, 22, (pm) => {
+    pm.elipse(10, 15, 9, 5.5, (x, y, nx, ny) => (ny < -0.2 ? C("#c8c2b4") : C("#9a948a")));
+    pm.elipse(10, 14.5, 6.5, 3.4, (x, y, nx, ny) => (ny < -0.3 ? C("#8fd3f0") : C("#3a8ac0")));
+    pm.rect(2, 2, 2, 13, C("#7a5236")); pm.rect(16, 2, 2, 13, C("#7a5236"));
+    pm.rect(1, 1, 18, 2, C("#8a6a40"));
+    pm.rect(9, 3, 1, 8, C("#c8b890"));
+    pm.rect(8, 10, 3, 3, C("#9aa0a8"));
+  }));
+}
 export function quadroSprite() {
   return guardado("quadro", () => spr(18, 28, (pm) => {
     pm.rect(3, 14, 2, 14, C("#7a5236")); pm.rect(13, 14, 2, 14, C("#7a5236"));
